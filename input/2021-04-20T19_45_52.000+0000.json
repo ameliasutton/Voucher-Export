@@ -1,0 +1,64 @@
+{"id":"62f5b046-3b3d-46cb-87d1-96e0e26f62a3",
+ "batchGroup":"Amherst (AC)",
+ "batchedVouchers":
+[
+{
+	"accountingCode":"G64758-74834",
+	"amount":1.0,
+	"batchedVoucherLines":
+	[
+		{
+		"amount":1.0,
+		"fundCodes":["USHIST"],
+		"externalAccountNumber":"speed type?"}],
+		"enclosureNeeded":false,
+		"exchangeRate":1.0,
+		"folioInvoiceNo":"10000",
+		"invoiceCurrency":"USD",
+		"status":"Awaiting payment",
+		"systemCurrency":"USD",
+		"type":"Voucher",
+		"vendorInvoiceNo":"asdfg",
+		"vendorName":"Amazon.com",
+		"voucherDate":"2021-04-20T19:35:44.760+0000",
+		"voucherNumber":"0",
+		"vendorAddress":{"addressLine1":"1 Centerpiece Blvd.",
+			"addressLine2":"P.O. Box 15550",
+			"city":"New Castle",
+			"stateRegion":"DE",
+			"zipCode":"19720-5550",
+			"country":"USA"}},
+{
+	"accountingCode":"accounting code 2",
+	"amount":50.0,
+	"batchedVoucherLines":
+	[
+		{"amount":50.0,
+		"fundCodes":["fund code"],
+		"externalAccountNumber":"external 2"}],
+		"enclosureNeeded":false,
+		"exchangeRate":1.0,
+		"folioInvoiceNo":"10000",
+		"invoiceCurrency":"USD",
+		"status":"Awaiting payment",
+		"systemCurrency":"USD",
+		"type":"Voucher",
+		"vendorInvoiceNo":"qwerty",
+		"vendorName":"Amazon.com",
+		"voucherDate":"2021-04-20T19:35:44.760+0000",
+		"voucherNumber":"0",
+		"vendorAddress":
+		{
+			"addressLine1":"1 Centerpiece Blvd.",
+			"addressLine2":"P.O. Box 15550",
+			"city":"New Castle",
+			"stateRegion":"DE",
+			"zipCode":"19720-5550",
+			"country":"USA"
+		}
+}
+],
+ "created":"2021-04-20T19:45:52.139+0000",
+ "start":"2021-04-20T14:51:33.354+0000",
+ "end":"2021-04-20T14:51:33.354+0000",
+ "totalRecords":1}
