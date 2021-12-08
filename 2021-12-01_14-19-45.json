@@ -1,0 +1,170 @@
+{
+    "id": "3285d0f9-8c34-4277-b7db-c68f8313ed4a",
+    "batchGroup": "FOLIO",
+    "batchedVouchers": [
+        {
+            "accountingCode": "YBPLI000_02",
+            "amount": 114.85,
+            "batchedVoucherLines": [
+                {
+                    "amount": 114.85,
+                    "fundCodes": [
+                        "MHSTORDPRON-mhsci",
+                        "MHSTORDPRON-mhsci"
+                    ],
+                    "externalAccountNumber": "0010-041602-83115-0001"
+                }
+            ],
+            "enclosureNeeded": false,
+            "exchangeRate": 1.0,
+            "folioInvoiceNo": "10429",
+            "invoiceCurrency": "USD",
+            "invoiceNote": "CAT SEP Test",
+            "status": "Paid",
+            "systemCurrency": "USD",
+            "type": "Voucher",
+            "vendorInvoiceNo": "87654",
+            "vendorName": "MH YBP Approval Continuations--Cat Sep",
+            "voucherDate": "2021-11-22T19:35:10.304+0000",
+            "voucherNumber": "363",
+            "vendorAddress": {
+                "addressLine1": "YBP Library Services 999 Maple St. Contoocook, NH 03229",
+                "city": "",
+                "stateRegion": "",
+                "zipCode": "",
+                "country": ""
+            }
+        },
+        {
+            "accountingCode": "YBPLI000_02",
+            "amount": 133.0,
+            "batchedVoucherLines": [
+                {
+                    "amount": 133.0,
+                    "fundCodes": [
+                        "MHSTORDPRON-mhsci",
+                        "MHSTORDPRON-mhsci"
+                    ],
+                    "externalAccountNumber": "0010-041602-83115-0001"
+                }
+            ],
+            "enclosureNeeded": false,
+            "exchangeRate": 1.0,
+            "folioInvoiceNo": "10430",
+            "invoiceCurrency": "USD",
+            "invoiceNote": "CAT SEP testing",
+            "status": "Paid",
+            "systemCurrency": "USD",
+            "type": "Voucher",
+            "vendorInvoiceNo": "98745",
+            "vendorName": "MH YBP Approval Continuations--Cat Sep",
+            "voucherDate": "2021-11-22T20:04:52.955+0000",
+            "voucherNumber": "364",
+            "vendorAddress": {
+                "addressLine1": "YBP Library Services 999 Maple St. Contoocook, NH 03229",
+                "city": "",
+                "stateRegion": "",
+                "zipCode": "",
+                "country": ""
+            }
+        },
+        {
+            "accountingCode": "EBSSU000_",
+            "amount": 105.0,
+            "batchedVoucherLines": [
+                {
+                    "amount": 105.0,
+                    "fundCodes": [
+                        "MHPERPRON-mhalldept"
+                    ],
+                    "externalAccountNumber": "0010-041602-83120-0001"
+                }
+            ],
+            "enclosureNeeded": false,
+            "exchangeRate": 1.0,
+            "folioInvoiceNo": "10431",
+            "invoiceCurrency": "USD",
+            "invoiceNote": "subscription testing",
+            "status": "Paid",
+            "systemCurrency": "USD",
+            "type": "Voucher",
+            "vendorInvoiceNo": "12396",
+            "vendorName": "MH Ebsco Subscription Services",
+            "voucherDate": "2021-11-22T20:18:08.927+0000",
+            "voucherNumber": "365",
+            "vendorAddress": {
+                "addressLine1": "EBSCO 30 Park Road, Suite 2",
+                "city": "Tinton Falls",
+                "stateRegion": "NJ",
+                "zipCode": "07724",
+                "country": ""
+            }
+        },
+        {
+            "accountingCode": "YBPLI000_02",
+            "amount": 110.0,
+            "batchedVoucherLines": [
+                {
+                    "amount": 110.0,
+                    "fundCodes": [
+                        "MHILLDD"
+                    ],
+                    "externalAccountNumber": "0010-041602-83145-0001"
+                }
+            ],
+            "enclosureNeeded": false,
+            "exchangeRate": 1.0,
+            "folioInvoiceNo": "10432",
+            "invoiceCurrency": "USD",
+            "status": "Paid",
+            "systemCurrency": "USD",
+            "type": "Voucher",
+            "vendorInvoiceNo": "987654",
+            "vendorName": "MH YBP By Pass account",
+            "voucherDate": "2021-11-23T16:43:22.645+0000",
+            "voucherNumber": "366",
+            "vendorAddress": {
+                "addressLine1": "YBP Library Service 999 Maple St.",
+                "city": "Contoocook",
+                "stateRegion": "NH",
+                "zipCode": "03229",
+                "country": ""
+            }
+        },
+        {
+            "accountingCode": "0000038152",
+            "amount": 35.0,
+            "batchedVoucherLines": [
+                {
+                    "amount": 35.0,
+                    "fundCodes": [
+                        "UMERES-UMOGEBOOK"
+                    ],
+                    "externalAccountNumber": "741520-741520"
+                }
+            ],
+            "enclosureNeeded": false,
+            "exchangeRate": 1.0,
+            "folioInvoiceNo": "10463",
+            "invoiceCurrency": "USD",
+            "status": "Paid",
+            "systemCurrency": "USD",
+            "type": "Voucher",
+            "vendorInvoiceNo": "vin1234",
+            "vendorName": "UM Amazon.com",
+            "voucherDate": "2021-12-01T14:18:27.444+0000",
+            "voucherNumber": "396",
+            "vendorAddress": {
+                "addressLine1": "Amazon.com 1516 2nd Ave. 4th Floor",
+                "city": "Seattle",
+                "stateRegion": "WA",
+                "zipCode": "98101",
+                "country": ""
+            }
+        }
+    ],
+    "created": "2021-12-01T14:19:44.815+0000",
+    "start": "2021-11-22T17:56:54.000+0000",
+    "end": "2021-11-22T17:56:54.000+0000",
+    "totalRecords": 5
+}
