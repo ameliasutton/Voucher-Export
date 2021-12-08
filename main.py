@@ -2,7 +2,7 @@ import voucherBatcher
 import json
 
 if __name__ == "__main__":
-    configName = "config.json"
+    configName = "configUMass.json"
     retriever = voucherBatcher.VoucherBatchRetriever(configName)
     while True:
         print('\n' * 40)
@@ -31,11 +31,11 @@ if __name__ == "__main__":
             input("\nPress Enter to return to Menu...")
 
         elif selection == "c":
-            retriever.selectNextVoucher()
+            retriever.selectNextBatch()
             input("\nPress Enter to return to Menu...")
 
         elif selection == "d":
-            retriever.selectPreviousVoucher()
+            retriever.selectPreviousBatch()
             input("\nPress Enter to return to Menu...")
 
         elif selection == "e":

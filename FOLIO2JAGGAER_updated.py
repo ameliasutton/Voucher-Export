@@ -6,9 +6,9 @@ import os
 if not os.listdir(os.getcwd() + "/input"):
     exit("No input file found")
 for file in os.listdir(os.getcwd() + "/input"):
-    with open("input/" + file, 'r') as input:
-        inputJson = json.load(input)
-with open("jaggaerLogin.json",'r') as login:
+    with open("input/" + file, 'r') as inFile:
+        inputJson = json.load(inFile)
+with open("jaggaerLogin.json", 'r') as login:
     loginData = json.load(login)
     user = loginData.pop("identity")
     secret = loginData.pop("secret")
