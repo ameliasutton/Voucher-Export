@@ -12,7 +12,7 @@ if __name__ == "__main__":
                           "b. Save Selected Batch of Vouchers \n"
                           "c. Select Next Batch \n"
                           "d. Select Previous Batch \n"
-                          "e. Select Most Recently Run Batch"
+                          "e. Select Most Recently Run Batch\n"
                           "Press and other key to exit \n")
         print('\n' * 40)
         if selection == "a":
