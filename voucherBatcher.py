@@ -1,7 +1,7 @@
 import requests
 import json
 import folio_api_aneslin as api
-
+from IPython.display import clear_output
 
 class VoucherBatchRetriever:
     def __init__(self, config):
@@ -74,6 +74,8 @@ class VoucherBatchRetriever:
             self.batchId = batch["batchVoucherExports"][0]["id"]
             self.batchEndDate = batch["batchVoucherExports"][0]["end"][0:23] + "*"
             self.batchStartDate = batch["batchVoucherExports"][0]["start"][0:23] + "*"
+            print("Next Batch Selected\n"
+                  "Run Date: " + self.batchEndDate)
         return
 
     def selectPreviousVoucher(self):
@@ -81,14 +83,17 @@ class VoucherBatchRetriever:
                                              + self.batchGroupId + "\" AND end==\"" + self.batchStartDate
                                              + "\")&sort(-metadata.updatedDate)", self.session)
         if batch["totalRecords"] == 0:
-            print("Oldest batch already selected")
+            print("Oldest Batch already selected")
         else:
             self.batchId = batch["batchVoucherExports"][0]["id"]
             self.batchEndDate = batch["batchVoucherExports"][0]["end"][0:23] + "*"
             self.batchStartDate = batch["batchVoucherExports"][0]["start"][0:23] + "*"
+            print("Previous Batch Selected\n"
+                  "Run Date: " + self.batchEndDate)
         return
 
     def retrieveVoucher(self):
+        self.voucherId = self.getVoucherId()
         if self.voucherId:
             returned = self.requester.singleRequest("batch-voucher/batch-vouchers/" + self.voucherId, self.session)
             return returned
@@ -99,11 +104,29 @@ class VoucherBatchRetriever:
 
 if __name__ == "__main__":
     configName = "config.json"
-
-    input()
     retriever = VoucherBatchRetriever(configName)
-    retriever.selectPreviousVoucher()
-    print("Voucher Id: " + str(retriever.getVoucherId()))
-    print(retriever.retrieveVoucher())
-
-#test Commit
+    while True:
+        print("Current Selected Batch Run Date: " + retriever.batchEndDate)
+        selection = input("Please select an action:\n"
+                          "a. Print Selected Batch of Vouchers \n"
+                          "b. Save Selected Batch of Vouchers \n"
+                          "c. Select Next Batch \n"
+                          "d. Select Previous Batch \n"
+                          "e. Exit \n")
+        if selection == "a":
+            vouchers = retriever.retrieveVoucher()
+            if vouchers:
+                print(json.dumps(vouchers, indent=4))
+            input("\nPress Enter to return to Menu...")
+        elif selection == "b":
+            print("Not Implemented Yet")
+            input("\nPress Enter to return to Menu...")
+        elif selection == "c":
+            retriever.selectNextVoucher()
+            input("\nPress Enter to return to Menu...")
+        elif selection == "d":
+            retriever.selectPreviousVoucher()
+            input("\nPress Enter to return to Menu...")
+        else:
+            exit()
+        print('\n'*20)
