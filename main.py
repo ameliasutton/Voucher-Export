@@ -32,10 +32,12 @@ if __name__ == "__main__":
 
         elif selection == "c":
             retriever.selectNextBatch()
+            retriever.updateConfig()
             input("\nPress Enter to return to Menu...")
 
         elif selection == "d":
             retriever.selectPreviousBatch()
+            retriever.updateConfig()
             input("\nPress Enter to return to Menu...")
 
         elif selection == "e":
