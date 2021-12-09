@@ -2,8 +2,20 @@ import voucherBatcher
 import json
 
 if __name__ == "__main__":
-    configName = "configUMass.json"
-    retriever = voucherBatcher.VoucherBatchRetriever(configName)
+    config_selection = input("\nPlease select a config file to use:\n\n"
+                             "a. config.json \n"
+                             "b configUMass.json \n"
+                             "c. Other File (you will be prompted for file"
+                             "Press any other key to exit")
+
+    if config_selection == "a":
+        config_name = "config.json"
+    if config_selection == "b":
+        config_name = "configUMass.json"
+    if config_selection == "c":
+        config_name = input("\nInput Config File Name: ")
+
+    retriever = voucherBatcher.VoucherBatchRetriever(config_name)
     while True:
         print('\n' * 40)
         print("Current Selected Batch Run Date: " + retriever.batchEndDate)
@@ -13,7 +25,7 @@ if __name__ == "__main__":
                           "c. Select Next Batch \n"
                           "d. Select Previous Batch \n"
                           "e. Select Most Recently Run Batch\n"
-                          "Press and other key to exit \n")
+                          "Press any other key to exit \n")
         print('\n' * 40)
         if selection == "a":
             vouchers = retriever.retrieveVoucher()
@@ -32,15 +44,14 @@ if __name__ == "__main__":
 
         elif selection == "c":
             retriever.selectNextBatch()
-            retriever.updateConfig()
             input("\nPress Enter to return to Menu...")
 
         elif selection == "d":
             retriever.selectPreviousBatch()
-            retriever.updateConfig()
             input("\nPress Enter to return to Menu...")
 
         elif selection == "e":
-            print("Option Not Implemented Yet")
+            retriever.selectMostRecentBatch()
+            input("\nPress Enter to return to Menu...")
         else:
             exit()
