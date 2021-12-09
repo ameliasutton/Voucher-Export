@@ -59,8 +59,7 @@ class requestObject():
     def paging(self, modURL, inc, session, topLevel=None):
         url = self.url + modURL
         result = session.get(url).json()
-        pages= result['totalRecords']
-        print(str(pages)+" Record(s) Returned")
+        pages = result['totalRecords']
         for index, page in enumerate(range(0, pages+1, inc)):
             if topLevel:
                 next_page = session.get(url, params={"offset":page}).json()[topLevel]
