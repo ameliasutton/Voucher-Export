@@ -1,6 +1,6 @@
 import voucherBatcher
 import json
-from termcolor import colored
+import FOLIO2JAGGAER
 
 if __name__ == "__main__":
     print('\n' * 40)
@@ -30,7 +30,8 @@ if __name__ == "__main__":
                           "c. Select Next Batch \n"
                           "d. Select Previous Batch \n"
                           "e. Select Most Recently Run Batch\n"
-                          "f. Run a new batch\n\n"
+                          "f. Run a new batch\n"
+                          "g. Convert a Voucher JSON to a Jaggaer XML\n\n"
                           "Press any other key to exit \n")
         print('\n' * 40)
         if selection == "a":
@@ -43,7 +44,8 @@ if __name__ == "__main__":
             vouchers = retriever.retrieveVoucher()
             if vouchers:
                 print("Saving Voucher Batch...")
-                with open(retriever.batchEndDate[0:-5].replace(":", "-").replace("T", "_") + ".json", "w") as out:
+                with open("jsonBatchVouchers/" + retriever.batchGroup + "/" + retriever.batchEndDate[0:-5].replace(":", "-").replace("T", "_")
+                          + ".json", "w") as out:
                     out.write(json.dumps(vouchers, indent=4))
                 print("Voucher Batch Saved.")
             input("\nPress Enter to return to Menu...")
@@ -65,6 +67,22 @@ if __name__ == "__main__":
             if cont == "y":
                 retriever.triggerBatch()
             input("\nPress Enter to return to Menu...")
+
+        elif selection == "g":
+            print("Not implemented yet! Sorry!\n")
+
+            fileChoice = input("Select a json file to convert: \n\n"
+                               "a. Most recently created\n"
+                               "b. Type in a file name\n\n"
+                               "Press any other key to return to Main Menu\n")
+            if fileChoice == "a":
+                print("A")
+
+            elif fileChoice == "b":
+                print("B")
+
+            else:
+                print("Back")
 
         else:
             print("\n"*40)
