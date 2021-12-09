@@ -13,12 +13,13 @@ class requestObject():
         self.token = token
         # TODO: Fill this dict with more possible errors
         self.responseErrors = {
-            400: "Bad Request",
-            401: "Unauthorized",
+            400: "Bad Request, e.g. malformed request body or query parameter. Details of the error (e.g. name of the "
+                 "parameter or line/character number with malformed data) provided in the response.",
+            401: "Not authorized to perform requested action",
             403: "Forbidden",
             404: "Not Found",
             408: "Request Timeout",
-            500: "Internal Server Record"
+            500: "Internal server error, e.g. due to misconfiguration"
 
         }
 
@@ -42,7 +43,7 @@ class requestObject():
     def setToken(self, t):
         self.token = t
 
-# verifys token is working, if not, prompts for new user/pass
+# verifies token is working, if not, prompts for new user/pass
     def testToken(self):
         headers = {'Content-Type': 'application/json',
                    'x-okapi-tenant': self.tenant, 'x-okapi-token': self.token}
@@ -67,11 +68,25 @@ class requestObject():
                 next_page = session.get(url, params={"offset":page}).json()
             yield next_page
 
-    def singleRequest(self, modURL, session, topLevel=None):
+    def singleGet(self, modURL, session):
         url = self.url + modURL
         returned = session.get(url)
         if returned.status_code in self.responseErrors.keys():
             sys.exit("Response Status Code: " + str(returned.status_code) + " " + str(self.responseErrors[returned.status_code]))
+        return returned.json()
+
+    def post(self, modURL, session, payload):
+        headers = {'Content-Type': 'application/json',
+                   'x-okapi-tenant': self.tenant,
+                   'x-okapi-token': self.token}
+        url = self.url + modURL
+        returned = requests.post(url,headers=headers, data=json.dumps(payload))
+
+        if returned.status_code in self.responseErrors.keys():
+            print("\n\n" + returned.request + "\n\n")
+            sys.exit(f"Response Status code: {str(returned.status_code)} "
+                     f"{str(self.responseErrors[returned.status_code])}\n\n")
+
         return returned.json()
 
 
