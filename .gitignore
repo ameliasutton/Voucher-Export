@@ -1,3 +1,5 @@
 config.json
 /config.json.bak
 /configUMass.json
+/jsonBatchVouchers
+/xmlBatchVouchers
