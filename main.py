@@ -1,19 +1,24 @@
 import voucherBatcher
 import json
+from termcolor import colored
 
 if __name__ == "__main__":
+    print('\n' * 40)
     config_selection = input("\nPlease select a config file to use:\n\n"
                              "a. config.json \n"
-                             "b configUMass.json \n"
-                             "c. Other File (you will be prompted for file"
-                             "Press any other key to exit")
-
+                             "b. configUMass.json \n"
+                             "c. Other File (you will be prompted for file\n\n"
+                             "Press any other key to exit\n")
+    config_name = ""
     if config_selection == "a":
         config_name = "config.json"
-    if config_selection == "b":
+    elif config_selection == "b":
         config_name = "configUMass.json"
-    if config_selection == "c":
+    elif config_selection == "c":
         config_name = input("\nInput Config File Name: ")
+    else:
+        print("\n" * 40)
+        exit()
 
     retriever = voucherBatcher.VoucherBatchRetriever(config_name)
     while True:
@@ -25,6 +30,7 @@ if __name__ == "__main__":
                           "c. Select Next Batch \n"
                           "d. Select Previous Batch \n"
                           "e. Select Most Recently Run Batch\n"
+                          "f. Run a new batch\n\n"
                           "Press any other key to exit \n")
         print('\n' * 40)
         if selection == "a":
@@ -53,5 +59,13 @@ if __name__ == "__main__":
         elif selection == "e":
             retriever.selectMostRecentBatch()
             input("\nPress Enter to return to Menu...")
+
+        elif selection == "f":
+            cont = input("Running a new batch will automatically select the most recent batch. Is that ok? (y/n) \n")
+            if cont == "y":
+                retriever.triggerBatch()
+            input("\nPress Enter to return to Menu...")
+
         else:
+            print("\n"*40)
             exit()
