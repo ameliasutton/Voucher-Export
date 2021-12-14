@@ -3,12 +3,15 @@ import json
 import folio_api_aneslin as api
 import datetime
 
+
 class VoucherBatchRetriever:
     def __init__(self, config):
         self.configFileName = config
-        with open(config, "r") as c:
-            config = json.load(c)
-
+        try:
+            with open(config, "r") as c:
+                config = json.load(c)
+        except FileNotFoundError:
+            exit(f"Config File \"{config}\" Not Found")
         self.batchStartDate = config["batchStartDate"]
         self.batchEndDate = config["batchEndDate"]
 
