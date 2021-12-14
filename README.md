@@ -18,7 +18,10 @@ Simple program with a few functions:
 * os
 * glob
 
-A json config file in the following format:
+
+## Instructions
+
+* Create json config file in the following format:
 >{  
     "url": "some FOLIO url",  
     "tenant": "some FOLIO x-okapi-tenant",  
@@ -29,16 +32,12 @@ A json config file in the following format:
     "batchEndDate": "Date in the form: YYYY-MM-DDTHH:MM:SS.000*",  
     "batchGroup": "Voucher Batch Group for export"  
 }
-
-## Instructions
-
-* In the same directory as main.py create folders **"jsonBatchVouchers"** and **"xmlBatchVouchers"** with subfolders for
-  the names of each Batch Group you plan to export files from.
+* Create folders **jsonBatchVouchers** and **xmlBatchVouchers** with subfolders for
+  the names of each Batch Group you plan to export files from inside your working directory.
   
 * Run main.py using the command line 
   
-* Using the menu select the voucher batch that you want to export, or create a new one, then convert the files that you 
-  need converted
+* Using the menu, select the voucher batch that you want to export, or create a new one, then convert those files.
 
 
 ## Contributors
