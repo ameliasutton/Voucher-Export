@@ -3,7 +3,7 @@ import json
 import sys
 
 
-class requestObject():
+class requestObject:
     def __init__(self, url, tenant, token=None):
         if url[-1] == '/':
             self.url = url
