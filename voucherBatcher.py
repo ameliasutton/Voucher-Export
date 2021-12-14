@@ -167,6 +167,14 @@ class VoucherBatchRetriever:
         print("New batch created and selected")
         return response
 
+    def saveVoucherJSON(self):
+        vouchers = self.retrieveVoucher()
+        if vouchers:
+            print("Saving Voucher Batch...")
+            with open("jsonBatchVouchers/" + self.batchGroup + "/" + self.batchEndDate[0:-5].replace(":", "-")
+                      .replace("T", "_") + ".json", "w") as out:
+                out.write(json.dumps(vouchers, indent=4))
+            print("Voucher Batch Saved.")
 
 if __name__ == "__main__":
     configName = "config.json"
