@@ -41,13 +41,7 @@ if __name__ == "__main__":
             input("\nPress Enter to return to Menu...")
 
         elif selection == "b":
-            vouchers = retriever.retrieveVoucher()
-            if vouchers:
-                print("Saving Voucher Batch...")
-                with open("jsonBatchVouchers/" + retriever.batchGroup + "/" + retriever.batchEndDate[0:-5].replace(":", "-").replace("T", "_")
-                          + ".json", "w") as out:
-                    out.write(json.dumps(vouchers, indent=4))
-                print("Voucher Batch Saved.")
+            retriever.saveVoucherJSON()
             input("\nPress Enter to return to Menu...")
 
         elif selection == "c":
@@ -76,14 +70,16 @@ if __name__ == "__main__":
                                "b. Type in a file name\n\n"
                                "Press any other key to return to Main Menu\n")
             if fileChoice == "a":
-                print("A")
-
+                converter = FOLIO2JAGGAER.json2xmlConverter(config_name)
+                converter.ConvertFOLIOBatchVoucher()
+                converter.saveXML()
             elif fileChoice == "b":
-                print("B")
-
+                converter = FOLIO2JAGGAER.json2xmlConverter(config_name, input("JSON File Name: "))
+                converter.ConvertFOLIOBatchVoucher()
+                converter.saveXML()
             else:
                 print("Back")
-
+            input("Press any key to return to Main Menu")
         else:
             print("\n"*40)
             exit()
