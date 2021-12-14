@@ -2,67 +2,61 @@ import json
 import xml.etree.ElementTree as xmlET
 import os
 import glob
+from xml.dom import minidom
 
 
 def openMostRecentJson(batchGroup):
     folder_path = os.getcwd() + "/jsonBatchVouchers/" + batchGroup
     file_type = '/*json'
     files = glob.glob(folder_path + file_type)
-    max_file = max(files, key=os.path.getctime)
-    file_out = open(max_file, 'r')
+    try:
+        max_file = max(files, key=os.path.getctime)
+    except FileNotFoundError:
+        exit(f"No json files found in {folder_path}")
+    file_out = json.load(open(max_file, 'r'))
     return file_out
 
 
-if __name__ == "__main__":
-    print("\n" * 40)
-    print(openMostRecentJson("FOLIO").read())
-    exit()
+# Takes in a json dict
+def ConvertFOLIOBatchVoucher(config, voucherIn):
+    try:
+        with open(config, "r") as readFile:
+            config = json.load(readFile)
+            user = config["jaggaerIdentity"]
+            secret = config["jaggaerSecret"]
+    except FileNotFoundError:
+        exit(f"Config File \"{config}\" Not Found")
+    if voucherIn["batchGroup"] != config["batchGroup"]:
+        print("Batch Group in Voucher json does not match Batch Group in config.")
+        return
 
-
-# TODO: OLD DEAD SCRIPT TO BE REPURPOSED
-
-def OLD(i):
-    # finds and loads file in the "/input" directory
-    if not os.listdir(os.getcwd() + "/input"):
-        exit("No input file found")
-    for file in os.listdir(os.getcwd() + "/input"):
-        with open("input/" + file, 'r') as inFile:
-            inputJson = json.load(inFile)
-
-    # TODO: USE THIS IN THE CONVERT SCRIPT TO GET THIS INFORMATION FROM THE CONFIG FILE
-    with open("jaggaerLogin.json", 'r') as login:
-        loginData = json.load(login)
-        user = loginData.pop("identity")
-        secret = loginData.pop("secret")
-
-    # checks for expected batchGroup name
-    batchGroupExpected = "UMass"
-    batchGroupActual = inputJson.pop("batchGroup")
-
-    if batchGroupActual != batchGroupExpected:
-        exit(
-            "Input file batch group, \"" + batchGroupActual + "\" does not match the expected \"" + batchGroupExpected + "\"")
-
-    # creates output xml tree with a root xmlRoot
-    xmlRoot = xmlET.Element("BuyerInvoiceOcrMessage")
-    xmlRoot.attrib = {"version": "1.0"}
+    xml_root = xmlET.Element("BuyerInvoiceOcrMessage")
+    xml_root.attrib = {"version": "1.0"}
 
     # Creates XML header (this is correct)
     header = xmlET.Element("Header")
-    xmlRoot.append(header)
+    xml_root.append(header)
 
-    messageID = xmlET.SubElement(header, "MessageId")
-    messageID.text = inputJson.pop("id")
+    message_id = xmlET.SubElement(header, "MessageId")
+    message_id.text = voucherIn["id"]
 
     timestamp = xmlET.SubElement(header, "Timestamp")
-    timestamp.text = inputJson.pop("end")
+    timestamp.text = voucherIn["end"]
 
     authentication = xmlET.SubElement(header, "Authentication")
     identity = xmlET.SubElement(authentication, "Identity")
     identity.text = user
-    sharedSecret = xmlET.SubElement(authentication, "SharedSecret")
-    sharedSecret.text = secret
+    shared_secret = xmlET.SubElement(authentication, "SharedSecret")
+    shared_secret.text = secret
 
+
+    # TODO: Remove these printing lines they are here for testing:
+    xmlstr = minidom.parseString(xmlET.tostring(xml_root)).toprettyxml(indent="   ")
+    print (xmlstr)
+
+
+# TODO: OLD DEAD SCRIPT TO BE REPURPOSED
+def OLD(i):
     # extracts data from each voucher and adds it to the xml tree
     # TODO THIS SECTION TO BE UPDATED
     for voucher in inputJson.pop("batchedVouchers"):
@@ -115,3 +109,8 @@ def OLD(i):
         out.write(fileHeaders.rstrip('\r\n') + content[22:])
 
     exit("Complete")
+
+
+if __name__ == "__main__":
+    jsonIn = openMostRecentJson("FOLIO")
+    ConvertFOLIOBatchVoucher("config.json", jsonIn)
