@@ -3,3 +3,5 @@ config.json
 /configUMass.json
 /jsonBatchVouchers
 /xmlBatchVouchers
+/gooey_config.json
+/main_gui.py
