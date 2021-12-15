@@ -18,7 +18,7 @@ class requestObject:
             401: "Not authorized to perform requested action",
             403: "Forbidden",
             404: "Not Found",
-            408: "Request Timeout",
+            408: "Request Timed Out",
             500: "Internal server error, e.g. due to misconfiguration"
 
         }
@@ -30,8 +30,9 @@ class requestObject:
         payload = {"username": userName,
                    "password": Password}
         connection_url = self.url + "authn/login"
-        login = requests.post(connection_url, headers=headers, data=json.dumps(payload))
-
+        login = requests.post(connection_url, headers=headers, data=json.dumps(payload), timeout=10)
+        if login.status_code == 408:
+            sys.exit("Login Request Timed Out")
         try:
             self.token = login.headers['x-okapi-token']
 
@@ -70,7 +71,7 @@ class requestObject:
 
     def singleGet(self, modURL, session):
         url = self.url + modURL
-        returned = session.get(url)
+        returned = session.get(url, timeout=10)
         if returned.status_code in self.responseErrors.keys():
             sys.exit("Response Status Code: " + str(returned.status_code) + " " + str(self.responseErrors[returned.status_code]))
         return returned.json()
@@ -83,7 +84,7 @@ class requestObject:
         returned = requests.post(url,headers=headers, data=json.dumps(payload))
 
         if returned.status_code in self.responseErrors.keys():
-            print("\n\n" + returned.request + "\n\n")
+            print("\n\n" + str(returned.request) + "\n\n")
             sys.exit(f"Response Status code: {str(returned.status_code)} "
                      f"{str(self.responseErrors[returned.status_code])}\n\n")
 
