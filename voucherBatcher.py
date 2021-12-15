@@ -6,6 +6,7 @@ import datetime
 
 class VoucherBatchRetriever:
     def __init__(self, config):
+        print("Initializing Retriever...")
         self.configFileName = config
         try:
             with open(config, "r") as c:
@@ -16,13 +17,13 @@ class VoucherBatchRetriever:
         self.batchEndDate = config["batchEndDate"]
 
         # Creates the requester object
-        print("Creating Requester")
+        print("Creating Requester...")
         self.requester = api.requestObject(config["url"], config["tenant"])
         self.requester.setToken(config["token"])
         self.requester.testToken()
         self.updateConfig()
-
-        print("Creating Session")
+        print("Requester Created")
+        print("Creating Session...")
         # Creates the session
         self.batchGroup = config["batchGroup"]
         headers = {'Content-Type': 'application/json',
@@ -32,15 +33,16 @@ class VoucherBatchRetriever:
         self.session = requests.Session()
         self.session.headers = headers
         self.session.params = {"limit": "1000"}
-
-        print("Getting Batch Group ID")
+        print("Session Created")
+        print("Getting Batch Group ID...")
         self.batchGroupId = self.getBatchGroupId()
         print("Batch Group ID Retrieved")
-        print("Getting Batch ID")
+        print("Getting Batch ID...")
         self.batchId = self.getBatchId()
         print("Batch ID Retrieved")
-        print("Getting Voucher ID")
+        print("Getting Voucher ID...")
         self.voucherId = self.getVoucherId()
+        print("Retriever Created!")
 
     # Updates config file with currently selected Start Date, End Date, and API Token
     def updateConfig(self):
@@ -80,14 +82,11 @@ class VoucherBatchRetriever:
         batch = self.requester.singleGet(f"batch-voucher/batch-voucher-exports?query=(batchGroupId==\""
                                          f"{self.batchGroupId}\" AND start==\"{self.batchStartDate}\" AND end==\""
                                          f"{self.batchEndDate}\")", self.session)["batchVoucherExports"][0]
-        if batch["status"] == "Error":
-            print("Selected Batch encountered an error: " + batch["message"] + " no vouchers were created.")
-            self.voucherId = None
-        elif batch["status"] == "Pending":
-            print("Selected Batch process is still running.")
-            self.voucherId = None
-        else:
+        try:
             self.voucherId = batch["batchVoucherId"]
+        except KeyError:
+            print("Selected Batch encountered an error: " + batch["message"])
+            self.voucherId = None
         return self.voucherId
 
     # Moves Start and End Dates to point towards the next Batch
