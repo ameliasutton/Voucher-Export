@@ -15,7 +15,7 @@ class json2xmlConverter:
                 self.secret = config["jaggaerSecret"]
                 self.batchGroup = config["batchGroup"]
         except FileNotFoundError:
-            exit(f"Config File \"{config}\" Not Found")
+            raise FileNotFoundError
         self.JsonName = jsonName
         if jsonName:
             with open(f"jsonBatchVouchers/{self.batchGroup}/{jsonName}", "r") as jsonIn:
@@ -37,7 +37,7 @@ class json2xmlConverter:
         try:
             max_file = max(files, key=os.path.getctime)
         except FileNotFoundError:
-            exit(f"No json files found in {folder_path}")
+            return -1
         self.JsonName = max_file
         file_out = json.load(open(max_file, 'r'))
         self.selectedJson = file_out
@@ -47,7 +47,7 @@ class json2xmlConverter:
     def ConvertFOLIOBatchVoucher(self):
         if not self.selectedJson:
             print("No JSON file selected")
-            return
+            return -1
         if self.selectedJson["batchGroup"] != self.batchGroup:
             exit("Batch Group in Voucher json does not match Batch Group in config.")
         print("test")
