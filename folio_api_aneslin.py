@@ -81,12 +81,13 @@ class requestObject:
                    'x-okapi-tenant': self.tenant,
                    'x-okapi-token': self.token}
         url = self.url + modURL
-        returned = requests.post(url,headers=headers, data=json.dumps(payload))
+        returned = requests.post(url, headers=headers, data=json.dumps(payload))
 
         if returned.status_code in self.responseErrors.keys():
             print("\n\n" + str(returned.request) + "\n\n")
-            sys.exit(f"Response Status code: {str(returned.status_code)} "
-                     f"{str(self.responseErrors[returned.status_code])}\n\n")
+            print(f"Response Status code: {str(returned.status_code)} "
+                  f"{str(self.responseErrors[returned.status_code])}\n\n")
+            return -1
 
         return returned.json()
 

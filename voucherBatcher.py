@@ -12,7 +12,7 @@ class VoucherBatchRetriever:
             with open(config, "r") as c:
                 config = json.load(c)
         except FileNotFoundError:
-            exit(f"Config File \"{config}\" Not Found")
+            raise FileNotFoundError
         self.batchStartDate = config["batchStartDate"]
         self.batchEndDate = config["batchEndDate"]
 
@@ -43,6 +43,7 @@ class VoucherBatchRetriever:
         print("Getting Voucher ID...")
         self.voucherId = self.getVoucherId()
         print("Retriever Created!")
+
 
     # Updates config file with currently selected Start Date, End Date, and API Token
     def updateConfig(self):
@@ -89,12 +90,24 @@ class VoucherBatchRetriever:
             self.voucherId = None
         return self.voucherId
 
+    def getVoucherStatus(self):
+        batch = self.requester.singleGet(f"batch-voucher/batch-voucher-exports?query=(batchGroupId==\""
+                                         f"{self.batchGroupId}\" AND start==\"{self.batchStartDate}\" AND end==\""
+                                         f"{self.batchEndDate}\")", self.session)["batchVoucherExports"][0]
+        try:
+            print(batch["batchVoucherId"])
+        except KeyError:
+            print("Selected Batch encountered an error: " + batch["message"])
+            return batch["message"]
+        return "Successful"
+
     # Moves Start and End Dates to point towards the next Batch
     def selectNextBatch(self):
         batch = self.requester.singleGet(f"batch-voucher/batch-voucher-exports?query=batchGroupId==\""
                                          f"{self.batchGroupId}\" AND start==\"{self.batchEndDate}\"", self.session)
         if batch["totalRecords"] == 0:
             print("Most recent batch already selected")
+            return -1
         else:
             self.batchId = batch["batchVoucherExports"][0]["id"]
             self.batchEndDate = batch["batchVoucherExports"][0]["end"][0:23] + "*"
@@ -102,7 +115,25 @@ class VoucherBatchRetriever:
             print("Next Batch Selected\n"
                   "Run Date: " + self.batchEndDate)
             self.updateConfig()
-        return
+            return 0
+
+    # Moves Start and End Dates to point towards the next successfully completed batch
+    def selectNextSuccessful(self):
+        current_id = self.batchId
+        current_end = self.batchEndDate
+        current_start = self.batchStartDate
+        print("Attempting to select next Successful batch...")
+        self.selectNextBatch()
+        while not self.getVoucherId():
+            if self.selectNextBatch() == -1:
+                self.batchId = current_id
+                self.batchEndDate = current_end
+                self.batchStartDate = current_start
+                self.updateConfig()
+                print("No more recent batches were successful initial batch reselected.")
+                return -1
+        print("Next Successful batch selected!")
+        return 0
 
     # Moves Start and End Dates to point towards the most recently run Batch
     def selectMostRecentBatch(self):
@@ -118,12 +149,21 @@ class VoucherBatchRetriever:
               "Run Date: " + self.batchEndDate)
         self.updateConfig()
 
+    # Moves Start and End Dates to point towards the most recent Successful batch
+    def mostRecentSuccessful(self):
+        self.selectMostRecentBatch()
+        if self.selectPreviousSuccessful() == -1:
+            print("No Successful batches found")
+            return -1
+        print("Most recent Successful batch selected")
+
     # Moves Start and End Dates to point towards the previous Batch
     def selectPreviousBatch(self):
         batch = self.requester.singleGet(f"batch-voucher/batch-voucher-exports?query=batchGroupId==\""
                                          f"{self.batchGroupId}\" AND end==\"{self.batchStartDate}\"", self.session)
         if batch["totalRecords"] == 0:
             print("Oldest Batch already selected")
+            return -1
         else:
             self.batchId = batch["batchVoucherExports"][0]["id"]
             self.batchEndDate = batch["batchVoucherExports"][0]["end"][0:23] + "*"
@@ -131,7 +171,25 @@ class VoucherBatchRetriever:
             print("Previous Batch Selected\n"
                   "Run Date: " + self.batchEndDate)
             self.updateConfig()
-        return
+            return 0
+
+    # Moves Start and End Dates to point towards the previous successfully completed batch
+    def selectPreviousSuccessful(self):
+        current_id = self.batchId
+        current_end = self.batchEndDate
+        current_start = self.batchStartDate
+        print("Attempting to select previous Successful batch...")
+        self.selectPreviousBatch()
+        while not self.getVoucherId():
+            if self.selectPreviousBatch() == -1:
+                self.batchId = current_id
+                self.batchEndDate = current_end
+                self.batchStartDate = current_start
+                self.updateConfig()
+                print("No older batches were successful initial batch reselected.")
+                return -1
+        print("Previous Successful batch selected!")
+        return 0
 
     # Returns a dict of the Batched Vouchers
     def retrieveVoucher(self):
@@ -162,6 +220,8 @@ class VoucherBatchRetriever:
         print("\n\n" + url + "\n\n")
         print(json.dumps(payload, indent=4))
         response = self.requester.post(url, self.session, payload)
+        if isinstance(response, int):
+            return response
         self.selectNextBatch()
         print("New batch created and selected")
         return response
@@ -174,9 +234,13 @@ class VoucherBatchRetriever:
                       .replace("T", "_") + ".json", "w") as out:
                 out.write(json.dumps(vouchers, indent=4))
             print("Voucher Batch Saved.")
+            return 0
+        else:
+            return -1
+
+
 
 if __name__ == "__main__":
     configName = "config.json"
     retriever = VoucherBatchRetriever(configName)
-    print("Attempting to trigger batch...")
-    retriever.triggerBatch()
+    retriever.mostRecentSuccessful()
