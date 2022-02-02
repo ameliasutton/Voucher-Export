@@ -70,11 +70,11 @@ if __name__ == "__main__":
                                "b. Type in a file name\n\n"
                                "Press any other key to return to Main Menu\n")
             if fileChoice == "a":
-                converter = FOLIO2JAGGAER.json2xmlConverter(config_name)
+                converter = FOLIO2JAGGAER.voucherDataConverter(config_name)
                 converter.ConvertFOLIOBatchVoucher()
                 converter.saveXML()
             elif fileChoice == "b":
-                converter = FOLIO2JAGGAER.json2xmlConverter(config_name, input("JSON File Name: "))
+                converter = FOLIO2JAGGAER.voucherDataConverter(config_name, input("JSON File Name: "))
                 converter.ConvertFOLIOBatchVoucher()
                 converter.saveXML()
             else:
