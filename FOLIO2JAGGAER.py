@@ -3,9 +3,10 @@ import xml.etree.ElementTree as xmlET
 import os
 import glob
 from xml.dom import minidom
+import pandas
 
 
-class json2xmlConverter:
+class voucherDataConverter:
 
     def __init__(self, config, jsonName=None, xmlName=None):
         try:
@@ -14,6 +15,8 @@ class json2xmlConverter:
                 self.user = config["jaggaerIdentity"]
                 self.secret = config["jaggaerSecret"]
                 self.batchGroup = config["batchGroup"]
+            with open(config["chartfield"]) as chart:
+                self.chartfield = pandas.read_csv(chart, delimiter="|", index_col="speedtype", dtype="string")
         except FileNotFoundError:
             raise FileNotFoundError
         self.JsonName = jsonName
@@ -24,7 +27,7 @@ class json2xmlConverter:
             self.retrieveMostRecentJSON()
         if xmlName:
             self.createdXML = xmlET.parse(xmlName)
-            self.XMLstring = self.getXMLstring()
+            self.XMLstring = self.getXMLString()
         else:
             self.createdXML = None
             self.XMLstring = None
@@ -50,7 +53,7 @@ class json2xmlConverter:
             return -1
         if self.selectedJson["batchGroup"] != self.batchGroup:
             exit("Batch Group in Voucher json does not match Batch Group in config.")
-        print("test")
+
 
         xml_root = xmlET.Element("BuyerInvoiceOcrMessage")
         xml_root.attrib = {"version": "1.0"}
@@ -155,7 +158,7 @@ class json2xmlConverter:
             sub_total = xmlET.SubElement(invoice_header, "Subtotal")
             sub_total_money = xmlET.SubElement(sub_total, "Money")
             sub_total_money.attrib = {"currency": "USD"}
-            sub_total_money.text = "TODO SubTotal"
+            sub_total_money.text = str(voucher["amount"])
 
             # Notes (Under Invoice Header)
             notes = xmlET.SubElement(invoice_header, "Notes")
@@ -234,6 +237,16 @@ class json2xmlConverter:
             # Splittable Field Set Group Start (Under Buyer Invoice Line)
             split_set_group = xmlET.SubElement(buyer_invoice_line, "SplittableFieldSetGroup")
 
+            # Location of the hyphen in the externalAccountNumber string
+            hyphen = voucher["batchedVoucherLines"][0]["externalAccountNumber"].find('-')
+            speedtype = voucher["batchedVoucherLines"][0]["externalAccountNumber"][:hyphen]
+            print("SPEEDTYPE = "+ speedtype)
+            print(self.chartfield.index.__str__())
+            if speedtype in self.chartfield.index:
+                fund = self.chartfield.loc[speedtype][1]
+                depID = self.chartfield.loc[speedtype][0]
+            else:
+                print("NO")
             # Split Field 1 (Campus) (Under Buyer Invoice Line)
             split_set_1 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
             split_set_1.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
@@ -252,7 +265,7 @@ class json2xmlConverter:
             split_2_custom = xmlET.SubElement(split_index_2, "CustomFieldValue")
             split_2_custom.attrib = {"name": "Speedtype"}
             split_2_custom_val = xmlET.SubElement(split_2_custom, "Value")
-            split_2_custom_val.text = "TODO: Speedtype"
+            split_2_custom_val.text = speedtype
 
             # Split Field 3 (Fund) (Under Buyer Invoice Line)
             split_set_3 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
@@ -262,7 +275,7 @@ class json2xmlConverter:
             split_3_custom = xmlET.SubElement(split_index_3, "CustomFieldValue")
             split_3_custom.attrib = {"name": "Fund"}
             split_3_custom_val = xmlET.SubElement(split_3_custom, "Value")
-            split_3_custom_val.text = "TODO: Fund Code"
+            split_3_custom_val.text = fund
 
             # Split Field 4 (Account) (Under Buyer Invoice Line)
             split_set_4 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
@@ -272,7 +285,7 @@ class json2xmlConverter:
             split_4_custom = xmlET.SubElement(split_index_4, "CustomFieldValue")
             split_4_custom.attrib = {"name": "Account"}
             split_4_custom_val = xmlET.SubElement(split_4_custom, "Value")
-            split_4_custom_val.text = "TODO: Account Value"
+            split_4_custom_val.text = voucher["batchedVoucherLines"][0]["externalAccountNumber"][hyphen+1:]
 
             # Split Field 5 (Program) (Under Buyer Invoice Line)
             split_set_5 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
@@ -292,12 +305,12 @@ class json2xmlConverter:
             split_6_custom = xmlET.SubElement(split_index_6, "CustomFieldValue")
             split_6_custom.attrib = {"name": "Department"}
             split_6_custom_val = xmlET.SubElement(split_6_custom, "Value")
-            split_6_custom_val.text = "TODO: Department Value"
+            split_6_custom_val.text = depID
 
         self.createdXML = xml_root
         return self.createdXML
 
-    def getXMLstring(self, xml_root=None):
+    def getXMLString(self, xml_root=None):
         if not xml_root:
             if not self.createdXML:
                 print("No XML Created Yet")
@@ -310,7 +323,7 @@ class json2xmlConverter:
     def saveXML(self, xml_string=None):
         if not xml_string:
             if not self.XMLstring:
-                self.XMLstring = self.getXMLstring()
+                self.XMLstring = self.getXMLString()
             xml_string = self.XMLstring
 
         file_out_path = f"xmlBatchVouchers\\{self.batchGroup}\\{self.JsonName[-24:-5]}.xml"
@@ -328,8 +341,8 @@ class json2xmlConverter:
 
 
 if __name__ == "__main__":
-    converter = json2xmlConverter("config.json", "2021-11-22_16-44-12.json")
+    converter = voucherDataConverter("config.json", "2021-11-22_16-44-12.json")
     converter.ConvertFOLIOBatchVoucher()
-    print(converter.getXMLstring())
+    print(converter.getXMLString())
     converter.saveXML()
 

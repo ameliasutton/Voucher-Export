@@ -44,7 +44,6 @@ class VoucherBatchRetriever:
         self.voucherId = self.getVoucherId()
         print("Retriever Created!")
 
-
     # Updates config file with currently selected Start Date, End Date, and API Token
     def updateConfig(self):
         with open(self.configFileName, "r") as readConf:
@@ -54,6 +53,7 @@ class VoucherBatchRetriever:
             config["token"] = self.requester.token
         with open(self.configFileName, "w") as writeConf:
             writeConf.write(json.dumps(config, indent=4))
+            print("Config updated")
 
     # Returns Batch Group ID matching Batch Group Name provided in config file
     def getBatchGroupId(self):
@@ -141,6 +141,7 @@ class VoucherBatchRetriever:
                                          f"{self.batchGroupId}\" sortby end/sort.descending", self.session)
         if batch["totalRecords"] == 0:
             print(f"No Batches Found With Batch Group: {self.batchGroup}")
+            return -1
         batch = batch["batchVoucherExports"][0]
         self.batchId = batch["id"]
         self.batchEndDate = batch["end"][0:23] + "*"
@@ -201,7 +202,6 @@ class VoucherBatchRetriever:
             return
 
     # Starts a new voucher batching process in FOLIO
-    # TODO Create this Function
     def triggerBatch(self):
         print("Selecting Most Recent Batch...")
         self.selectMostRecentBatch()
@@ -226,6 +226,7 @@ class VoucherBatchRetriever:
         print("New batch created and selected")
         return response
 
+    # Saves voucher to JSON using BatchEndDate as file name
     def saveVoucherJSON(self):
         vouchers = self.retrieveVoucher()
         if vouchers:
@@ -237,7 +238,6 @@ class VoucherBatchRetriever:
             return 0
         else:
             return -1
-
 
 
 if __name__ == "__main__":
