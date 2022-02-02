@@ -1,6 +1,7 @@
 import voucherBatcher
 import FOLIO2JAGGAER
 import tkinter as tk
+import sys
 
 
 class popupWindow:
@@ -18,6 +19,7 @@ class popupWindow:
 
     def close(self):
         self.popup.destroy()
+
 
 class configMenu:
     def __init__(self):
@@ -37,14 +39,14 @@ class configMenu:
 
         self.config_input_prompt = tk.Label(master=self.config_menu, text="Input File Name:         ")
         self.config_input_prompt.grid(row=2, column=0)
-        self.config_input_box = tk.Entry(master=self.config_menu, text="Input File Name")
+        self.config_input_box = tk.Entry(master=self.config_menu, text="configUMass.json")
         self.config_input_box.grid(row=2, column=1)
         self.config_input_submit = tk.Button(master=self.config_menu, text="Submit",
                                              command=self.customLaunch).grid(row=2, column=2)
 
         self.config_menu_bar = tk.Menu(master=self.config_menu)
         self.config_file = tk.Menu(master=self.config_menu_bar, tearoff=0)
-        self.config_file.add_command(label="Exit", command=exit)
+        self.config_file.add_command(label="Exit", command=sys.exit)
         self.config_menu_bar.add_cascade(label="File", menu=self.config_file)
         self.config_menu.config(menu=self.config_menu_bar)
 
@@ -55,10 +57,8 @@ class configMenu:
         global configName
         configName = "config.json"
         retriever = voucherBatcher.VoucherBatchRetriever(configName)
-        if retriever.mostRecentSuccessful() == -1:
+        if retriever.selectMostRecentBatch() == -1:
             retriever.triggerBatch()
-            if retriever.getVoucherId() == -1:
-                exit("No successful batches found and triggered batch did not run successfully")
         self.config_menu.destroy()
         batchMenu()
 
@@ -67,10 +67,8 @@ class configMenu:
         global configName
         configName = self.config_input_box.get()
         retriever = voucherBatcher.VoucherBatchRetriever(configName)
-        if retriever.mostRecentSuccessful() == -1:
+        if retriever.selectMostRecentBatch() == -1:
             retriever.triggerBatch()
-            if retriever.getVoucherId() == -1:
-                exit("No successful batches found and triggered batch did not run successfully")
         self.config_menu.destroy()
         batchMenu()
 
@@ -121,8 +119,8 @@ class batchMenu:
 
         self.main_menu_bar = tk.Menu(master=self.batch_menu)
         self.file_menu = tk.Menu(master=self.main_menu_bar, tearoff=0)
-        self.file_menu.add_command(label="Reselect Config", command=self.reconfig)
-        self.file_menu.add_command(label="Exit", command=exit)
+        self.file_menu.add_command(label="Reselect Config", command=self.reConfig)
+        self.file_menu.add_command(label="Exit", command=sys.exit)
         self.main_menu_bar.add_cascade(label="File", menu=self.file_menu)
         self.batch_menu.config(menu=self.main_menu_bar)
 
@@ -171,9 +169,10 @@ class batchMenu:
         self.batch_menu.destroy()
         convertMenu()
 
-    def reconfig(self):
+    def reConfig(self):
         self.batch_menu.destroy()
         configMenu()
+
 
 class convertMenu:
 
@@ -204,12 +203,12 @@ class convertMenu:
 
         self.menu_bar = tk.Menu(master=self.convert_menu)
         self.menu_file = tk.Menu(master=self.menu_bar, tearoff=0)
-        self.menu_file.add_command(label="Exit", command=exit)
+        self.menu_file.add_command(label="Exit", command=sys.exit)
         self.menu_bar.add_cascade(label="File", menu=self.menu_file)
         self.convert_menu.config(menu=self.menu_bar)
 
     def mostRecent(self):
-        converter = FOLIO2JAGGAER.json2xmlConverter(configName)
+        converter = FOLIO2JAGGAER.voucherDataConverter(configName)
         if converter.retrieveMostRecentJSON() == -1:
             popupWindow("No json vouchers for this config's batch group were found.")
             return
@@ -218,7 +217,7 @@ class convertMenu:
         popupWindow("File Converted Successfully")
 
     def convertCustom(self):
-        converter = FOLIO2JAGGAER.json2xmlConverter(configName, self.input_box.get())
+        converter = FOLIO2JAGGAER.voucherDataConverter(configName, self.input_box.get())
         try:
             print("test")
         except FileNotFoundError:
@@ -234,6 +233,7 @@ class convertMenu:
 
 
 if __name__ == "__main__":
+    print("Launching...")
     configMenu()
 
 
