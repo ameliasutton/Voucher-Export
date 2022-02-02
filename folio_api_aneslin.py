@@ -23,6 +23,7 @@ class requestObject:
 
         }
 
+# makes post call to authn/login to request a fresh token
     def retrieveToken(self, userName, Password):
 
         headers = {'Content-Type': 'application/json',
