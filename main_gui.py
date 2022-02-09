@@ -15,6 +15,7 @@ class popupWindow:
         self.text_label.grid(row=0, column=0)
         self.close_button = tk.Button(master=self.popup, text="OK", command=self.close)
         self.close_button.grid(row=1, column=0)
+
         self.popup.mainloop()
 
     def close(self):
@@ -50,7 +51,12 @@ class configMenu:
         self.config_menu_bar.add_cascade(label="File", menu=self.config_file)
         self.config_menu.config(menu=self.config_menu_bar)
 
+        self.config_menu.bind("<Return>", self.return_pressed)
+
         self.config_menu.mainloop()
+
+    def return_pressed(self, event):
+        self.customLaunch()
 
     def defaultLaunch(self):
         global retriever
@@ -62,11 +68,15 @@ class configMenu:
         self.config_menu.destroy()
         batchMenu()
 
-    def customLaunch(self):
+    def customLaunch(self, event=None):
         global retriever
         global configName
         configName = self.config_input_box.get()
-        retriever = voucherBatcher.VoucherBatchRetriever(configName)
+        try:
+            retriever = voucherBatcher.VoucherBatchRetriever(configName)
+        except:
+            popupWindow("Config File Not Found.\nPlease Check File Name\nand try again")
+
         if retriever.selectMostRecentBatch() == -1:
             retriever.triggerBatch()
         self.config_menu.destroy()
@@ -90,7 +100,7 @@ class batchMenu:
         self.status_desc = tk.Label(master=self.batch_menu, text="Currently Selected Batch Status:")
         self.status_desc.grid(row=2, column=1)
 
-        self.voucher_status = tk.Label(master=self.batch_menu, text="Successful")
+        self.voucher_status = tk.Label(master=self.batch_menu, text=retriever.getVoucherStatus())
         self.voucher_status.grid(row=3, column=1)
 
         self.select_next = tk.Button(master=self.batch_menu, text="Select Next", command=self.selectNext)
