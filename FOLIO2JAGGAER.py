@@ -77,7 +77,7 @@ class voucherDataConverter:
             # Invoice Header Begins
 
             # Invoice Header Header
-            invoice_line = xmlET.SubElement(xml_root, "BuyerInvoiceOrc")
+            invoice_line = xmlET.SubElement(xml_root, "BuyerInvoiceOcr")
             invoice_header = xmlET.SubElement(invoice_line, "BuyerInvoiceHeader")
 
             invoice_number = xmlET.SubElement(invoice_header, "SupplierInvoiceNumber")
@@ -149,13 +149,13 @@ class voucherDataConverter:
             due_date.text = "TODO Due Date"
 
             # Grand Total Information (Under Invoice Header)
-            grand_total = xmlET.SubElement(invoice_header, "GrantTotal")
+            grand_total = xmlET.SubElement(invoice_header, "GrandTotal")
             grand_total_money = xmlET.SubElement(grand_total, "Money")
             grand_total_money.attrib = {"currency": "USD"}
             grand_total_money.text = str(voucher["amount"])
 
             # Sub Total Information (Under Invoice Header)
-            sub_total = xmlET.SubElement(invoice_header, "Subtotal")
+            sub_total = xmlET.SubElement(invoice_header, "SubTotal")
             sub_total_money = xmlET.SubElement(sub_total, "Money")
             sub_total_money.attrib = {"currency": "USD"}
             sub_total_money.text = str(voucher["amount"])
@@ -251,7 +251,7 @@ class voucherDataConverter:
             split_set_1 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
             split_set_1.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
             split_index_1 = xmlET.SubElement(split_set_1, "SplittableFieldIndex")
-            split_index_1.attrib = {"distributionbalue": "100", "splitindex": "0"}
+            split_index_1.attrib = {"distributionvalue": "100", "splitindex": "0"}
             split_1_custom = xmlET.SubElement(split_index_1, "CustomFieldValue")
             split_1_custom.attrib = {"name": "Campus"}
             split_1_custom_val = xmlET.SubElement(split_1_custom, "Value")
@@ -261,7 +261,7 @@ class voucherDataConverter:
             split_set_2 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
             split_set_2.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
             split_index_2 = xmlET.SubElement(split_set_2, "SplittableFieldIndex")
-            split_index_2.attrib = {"distributionbalue": "100", "splitindex": "0"}
+            split_index_2.attrib = {"distributionvalue": "100", "splitindex": "0"}
             split_2_custom = xmlET.SubElement(split_index_2, "CustomFieldValue")
             split_2_custom.attrib = {"name": "Speedtype"}
             split_2_custom_val = xmlET.SubElement(split_2_custom, "Value")
@@ -271,7 +271,7 @@ class voucherDataConverter:
             split_set_3 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
             split_set_3.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
             split_index_3 = xmlET.SubElement(split_set_3, "SplittableFieldIndex")
-            split_index_3.attrib = {"distributionbalue": "100", "splitindex": "0"}
+            split_index_3.attrib = {"distributionvalue": "100", "splitindex": "0"}
             split_3_custom = xmlET.SubElement(split_index_3, "CustomFieldValue")
             split_3_custom.attrib = {"name": "Fund"}
             split_3_custom_val = xmlET.SubElement(split_3_custom, "Value")
@@ -281,7 +281,7 @@ class voucherDataConverter:
             split_set_4 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
             split_set_4.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
             split_index_4 = xmlET.SubElement(split_set_4, "SplittableFieldIndex")
-            split_index_4.attrib = {"distributionbalue": "100", "splitindex": "0"}
+            split_index_4.attrib = {"distributionvalue": "100", "splitindex": "0"}
             split_4_custom = xmlET.SubElement(split_index_4, "CustomFieldValue")
             split_4_custom.attrib = {"name": "Account"}
             split_4_custom_val = xmlET.SubElement(split_4_custom, "Value")
@@ -291,7 +291,7 @@ class voucherDataConverter:
             split_set_5 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
             split_set_5.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
             split_index_5 = xmlET.SubElement(split_set_5, "SplittableFieldIndex")
-            split_index_5.attrib = {"distributionbalue": "100", "splitindex": "0"}
+            split_index_5.attrib = {"distributionvalue": "100", "splitindex": "0"}
             split_5_custom = xmlET.SubElement(split_index_5, "CustomFieldValue")
             split_5_custom.attrib = {"name": "Program"}
             split_5_custom_val = xmlET.SubElement(split_5_custom, "Value")
@@ -301,7 +301,7 @@ class voucherDataConverter:
             split_set_6 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
             split_set_6.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
             split_index_6 = xmlET.SubElement(split_set_6, "SplittableFieldIndex")
-            split_index_6.attrib = {"distributionbalue": "100", "splitindex": "0"}
+            split_index_6.attrib = {"distributionvalue": "100", "splitindex": "0"}
             split_6_custom = xmlET.SubElement(split_index_6, "CustomFieldValue")
             split_6_custom.attrib = {"name": "Department"}
             split_6_custom_val = xmlET.SubElement(split_6_custom, "Value")
