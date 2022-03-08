@@ -54,7 +54,6 @@ class voucherDataConverter:
         if self.selectedJson["batchGroup"] != self.batchGroup:
             exit("Batch Group in Voucher json does not match Batch Group in config.")
 
-
         xml_root = xmlET.Element("BuyerInvoiceOcrMessage")
         xml_root.attrib = {"version": "1.0"}
 
@@ -240,7 +239,7 @@ class voucherDataConverter:
             # Location of the hyphen in the externalAccountNumber string
             hyphen = voucher["batchedVoucherLines"][0]["externalAccountNumber"].find('-')
             speedtype = voucher["batchedVoucherLines"][0]["externalAccountNumber"][:hyphen]
-            print("SPEEDTYPE = "+ speedtype)
+            print("SPEEDTYPE = " + speedtype)
             print(self.chartfield.index.__str__())
             if speedtype in self.chartfield.index:
                 fund = self.chartfield.loc[speedtype][1]
@@ -345,4 +344,3 @@ if __name__ == "__main__":
     converter.ConvertFOLIOBatchVoucher()
     print(converter.getXMLString())
     converter.saveXML()
-

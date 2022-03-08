@@ -19,6 +19,7 @@ class requestObject:
             403: "Forbidden",
             404: "Not Found",
             408: "Request Timed Out",
+            422: "Unprocessable Entity",
             500: "Internal server error, e.g. due to misconfiguration"
 
         }
@@ -78,18 +79,25 @@ class requestObject:
         return returned.json()
 
     def post(self, modURL, session, payload):
-        headers = {'Content-Type': 'application/json',
-                   'x-okapi-tenant': self.tenant,
-                   'x-okapi-token': self.token}
         url = self.url + modURL
-        returned = requests.post(url, headers=headers, data=json.dumps(payload))
+        returned = session.post(url, data=json.dumps(payload))
+        return self.checkResponse(returned)
 
-        if returned.status_code in self.responseErrors.keys():
+    def put(self, modURL, session, payload):
+        url = self.url + modURL
+        returned = session.put(url, data=json.dumps(payload))
+        return self.checkResponse(returned)
+
+    def checkResponse(self, returned):
+        if returned.status_code >= 300:
             print("\n\n" + str(returned.request) + "\n\n")
-            print(f"Response Status code: {str(returned.status_code)} "
-                  f"{str(self.responseErrors[returned.status_code])}\n\n")
-            return -1
-
+            if returned.status_code in self.responseErrors.keys():
+                print(f"Response Status code: {str(returned.status_code)} "
+                      f"{str(self.responseErrors[returned.status_code])}\n\n")
+            else:
+                print(f"Response Status code: {str(returned.status_code)}\n\n")
+            print(f"Response:\n{json.dumps(returned.json())}\n\n")
+            return {}
         return returned.json()
 
 

@@ -2,7 +2,7 @@ import voucherBatcher
 import FOLIO2JAGGAER
 import tkinter as tk
 import sys
-
+from generateLog import generateLog
 
 class popupWindow:
     def __init__(self, text):
@@ -162,8 +162,8 @@ class batchMenu:
         response = retriever.triggerBatch()
         self.voucher_current.config(text=retriever.batchEndDate[0:-5].replace("T", " at "))
         self.voucher_status.config(text=retriever.getVoucherStatus())
-        if isinstance(response, int):
-            popupWindow(f"Batch Creation Failed. Error code: {response}")
+        if response == {}:
+            popupWindow(f"Batch Creation Failed, see log for details.")
         else:
             popupWindow("New Batch Created.")
             retriever.selectMostRecentBatch()
@@ -243,8 +243,9 @@ class convertMenu:
 
 
 if __name__ == "__main__":
+    # TODO: allow log to be generated without swallowing the login prompt
+    # generateLog("voucher_export_log")
     print("Launching...")
     configMenu()
-
 
 

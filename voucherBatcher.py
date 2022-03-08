@@ -41,7 +41,8 @@ class VoucherBatchRetriever:
         self.batchId = self.getBatchId()
         print("Batch ID Retrieved")
         print("Getting Voucher ID...")
-        self.voucherId = self.getVoucherId()
+        self.voucherId = None
+        self.getVoucherId()
         print("Retriever Created!")
 
     # Updates config file with currently selected Start Date, End Date, and API Token
@@ -88,7 +89,8 @@ class VoucherBatchRetriever:
         except KeyError:
             print("Selected Batch encountered an error: " + batch["message"])
             self.voucherId = None
-        return self.voucherId
+            return -1
+        return 0
 
     def getVoucherStatus(self):
         batch = self.requester.singleGet(f"batch-voucher/batch-voucher-exports?query=(batchGroupId==\""
@@ -124,7 +126,7 @@ class VoucherBatchRetriever:
         current_start = self.batchStartDate
         print("Attempting to select next Successful batch...")
         self.selectNextBatch()
-        while not self.getVoucherId():
+        while self.getVoucherId() == -1:
             if self.selectNextBatch() == -1:
                 self.batchId = current_id
                 self.batchEndDate = current_end
@@ -149,6 +151,7 @@ class VoucherBatchRetriever:
         print("Most Recent Batch Selected\n"
               "Run Date: " + self.batchEndDate)
         self.updateConfig()
+        return 0
 
     # Moves Start and End Dates to point towards the most recent Successful batch
     def mostRecentSuccessful(self):
@@ -157,6 +160,7 @@ class VoucherBatchRetriever:
             print("No Successful batches found")
             return -1
         print("Most recent Successful batch selected")
+        return 0
 
     # Moves Start and End Dates to point towards the previous Batch
     def selectPreviousBatch(self):
@@ -181,7 +185,7 @@ class VoucherBatchRetriever:
         current_start = self.batchStartDate
         print("Attempting to select previous Successful batch...")
         self.selectPreviousBatch()
-        while not self.getVoucherId():
+        while self.getVoucherId() == -1:
             if self.selectPreviousBatch() == -1:
                 self.batchId = current_id
                 self.batchEndDate = current_end
@@ -194,12 +198,12 @@ class VoucherBatchRetriever:
 
     # Returns a dict of the Batched Vouchers
     def retrieveVoucher(self):
-        self.voucherId = self.getVoucherId()
+        self.getVoucherId()
         if self.voucherId:
             returned = self.requester.singleGet(f"batch-voucher/batch-vouchers/{self.voucherId}", self.session)
             return returned
         else:
-            return
+            return {}
 
     # Starts a new voucher batching process in FOLIO
     def triggerBatch(self):
@@ -220,16 +224,15 @@ class VoucherBatchRetriever:
         print("\n\n" + url + "\n\n")
         print(json.dumps(payload, indent=4))
         response = self.requester.post(url, self.session, payload)
-        if isinstance(response, int):
-            return response
-        self.selectNextBatch()
-        print("New batch created and selected")
+        if response != {}:
+            self.selectNextBatch()
+            print("New batch created and selected")
         return response
 
     # Saves voucher to JSON using BatchEndDate as file name
     def saveVoucherJSON(self):
         vouchers = self.retrieveVoucher()
-        if vouchers:
+        if vouchers != {}:
             print("Saving Voucher Batch...")
             with open("jsonBatchVouchers/" + self.batchGroup + "/" + self.batchEndDate[0:-5].replace(":", "-")
                       .replace("T", "_") + ".json", "w") as out:
