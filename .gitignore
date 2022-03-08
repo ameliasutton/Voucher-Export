@@ -3,4 +3,5 @@
 /configUMass.json
 /jsonBatchVouchers
 /xmlBatchVouchers
-/*.log
+/mark_paid_log.log
+/voucher_export_log.log
