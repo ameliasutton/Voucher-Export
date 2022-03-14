@@ -1,12 +1,13 @@
 import json
 import folio_api_aneslin as api
 import requests
-from generateLog import generateLog
+from logger import logger
 
 
 class invoicePayer:
 
     def __init__(self, config: str, folioInvoiceNos: list[int]):
+        self.log = logger("mark_paid_log")
         self.folioInvoiceNos = folioInvoiceNos
 
         # Read Config File
@@ -21,7 +22,9 @@ class invoicePayer:
         # Create Requester
         self.requester = api.requestObject(config["url"], config["tenant"])
         self.requester.setToken(config["token"])
+        self.log.pauseLogging()
         self.requester.testToken()
+        self.log.resumeLogging()
         self.updateToken()
 
         # Create Session
@@ -50,6 +53,7 @@ class invoicePayer:
             return {}
 
     def payInvoice(self, invoiceJson: dict) -> int:
+        print(f"...FOLIO Invoice Number: {invoiceJson['folioInvoiceNo']}")
         if invoiceJson["status"] != "Approved":
             return -2
         invoiceJson["status"] = "Paid"
@@ -61,26 +65,29 @@ class invoicePayer:
             return -1
 
     def batchPayInvoices(self) -> dict:
+        print("Setting Invoices to Paid Status...")
         invoices = []
-        results = {}
+        results_dict = {}
         for item in self.folioInvoiceNos:
             retrieved_invoice = self.getInvoice(item)
             if retrieved_invoice == {}:
-                results[item] = "No matching invoice found"
+                results_dict[item] = "No matching invoice found"
             else:
                 invoices.append(retrieved_invoice)
         for invoice in invoices:
             paid = self.payInvoice(invoice)
             if paid == 0:
-                results[invoice["folioInvoiceNo"]] = "Marked Paid"
+                results_dict[invoice["folioInvoiceNo"]] = "Marked Paid"
             elif paid == -1:
-                results[invoice["folioInvoiceNo"]] = "Request Failed, see log for details."
+                results_dict[invoice["folioInvoiceNo"]] = "Request Failed, see above for details."
             elif paid == -2:
-                results[invoice["folioInvoiceNo"]] = "Invoice has not been approved or has already been paid"
-        return results
+                results_dict[invoice["folioInvoiceNo"]] = "Invoice has not been approved or has already been paid"
+        return results_dict
 
 
 if __name__ == "__main__":
-    generateLog("mark_paid_log")
-    payer = invoicePayer("config.json", [10859])
-    print(json.dumps(payer.batchPayInvoices(), indent=4))
+    payer = invoicePayer("config.json", [10726, 10991])
+    results = payer.batchPayInvoices()
+    print("\n****************************************************************************\n")
+    print("Results:\n")
+    print(json.dumps(results, indent=4))

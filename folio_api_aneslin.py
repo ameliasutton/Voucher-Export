@@ -90,14 +90,16 @@ class requestObject:
 
     def checkResponse(self, returned):
         if returned.status_code >= 300:
-            print("\n\n" + str(returned.request) + "\n\n")
+            requestbody = json.loads(returned.request.body)
+            print(f"\nRequest Body:\n{json.dumps(requestbody, indent=4)}\n")
             if returned.status_code in self.responseErrors.keys():
                 print(f"Response Status code: {str(returned.status_code)} "
                       f"{str(self.responseErrors[returned.status_code])}\n\n")
             else:
                 print(f"Response Status code: {str(returned.status_code)}\n\n")
-            print(f"Response:\n{json.dumps(returned.json())}\n\n")
+            print(f"Response:\n{json.dumps(returned.json(), indent=4)}\n\n")
             return {}
+        print(f"Response:\n{json.dumps(returned.json(), indent=4)}\n\n")
         return returned.json()
 
 

@@ -2,7 +2,8 @@ import voucherBatcher
 import FOLIO2JAGGAER
 import tkinter as tk
 import sys
-from generateLog import generateLog
+from logger import logger
+
 
 class popupWindow:
     def __init__(self, text):
@@ -244,7 +245,7 @@ class convertMenu:
 
 if __name__ == "__main__":
     # TODO: allow log to be generated without swallowing the login prompt
-    # generateLog("voucher_export_log")
+    logger("voucher_export_log")
     print("Launching...")
     configMenu()
 
