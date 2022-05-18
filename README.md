@@ -17,6 +17,7 @@ Simple program with a few functions:
 * xml
 * os
 * glob
+* tkinter
 
 
 ## Instructions

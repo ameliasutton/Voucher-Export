@@ -6,9 +6,9 @@ from logger import logger
 
 class invoicePayer:
 
-    def __init__(self, config: str, folioInvoiceNos: list[int]):
+    def __init__(self, config: str, identifiers: list[int]):
         self.log = logger("mark_paid_log")
-        self.folioInvoiceNos = folioInvoiceNos
+        self.identifiers = identifiers
 
         # Read Config File
         self.configFileName = config
@@ -44,9 +44,9 @@ class invoicePayer:
         print("Token in config is up to date.")
         return 0
 
-    def getInvoice(self, folioInvoiceNo: int) -> {}:
-        response = self.requester.singleGet(f"invoice/invoices?query=folioInvoiceNo="
-                                            f"\"{str(folioInvoiceNo)}\"", self.session)
+    def getInvoice(self, identifier: int) -> {}:
+        response = self.requester.singleGet(f"invoice/invoices?query=voucherNumber="
+                                            f"\"{str(identifier)}\"", self.session)
         if response["totalRecords"] == 1:
             return response["invoices"][0]
         else:
@@ -59,7 +59,7 @@ class invoicePayer:
         invoiceJson["status"] = "Paid"
         uuid = invoiceJson["id"]
         response = self.requester.put(f"invoice/invoices/{str(uuid)}", self.session, invoiceJson)
-        if response != {}:
+        if response == {}:
             return 0
         else:
             return -1
@@ -68,7 +68,7 @@ class invoicePayer:
         print("Setting Invoices to Paid Status...")
         invoices = []
         results_dict = {}
-        for item in self.folioInvoiceNos:
+        for item in self.identifiers:
             retrieved_invoice = self.getInvoice(item)
             if retrieved_invoice == {}:
                 results_dict[item] = "No matching invoice found"
@@ -86,7 +86,7 @@ class invoicePayer:
 
 
 if __name__ == "__main__":
-    payer = invoicePayer("config.json", [10726, 10991])
+    payer = invoicePayer("config.json", [1099])
     results = payer.batchPayInvoices()
     print("\n****************************************************************************\n")
     print("Results:\n")

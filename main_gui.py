@@ -8,8 +8,8 @@ from logger import logger
 class popupWindow:
     def __init__(self, text):
         self.popup = tk.Tk()
-        self.popup.wm_title("text")
-        self.popup.columnconfigure(0)
+        self.popup.wm_title("Popup Notice")
+        self.popup.columnconfigure(0, minsize=100)
         self.popup.rowconfigure([0, 1], minsize=2)
 
         self.text_label = tk.Label(master=self.popup, text=text)
@@ -63,7 +63,10 @@ class configMenu:
         global retriever
         global configName
         configName = "config.json"
-        retriever = voucherBatcher.VoucherBatchRetriever(configName)
+        try:
+            retriever = voucherBatcher.VoucherBatchRetriever(configName)
+        except Exception as e:
+            popupWindow(e)
         if retriever.selectMostRecentBatch() == -1:
             retriever.triggerBatch()
         self.config_menu.destroy()
@@ -75,8 +78,9 @@ class configMenu:
         configName = self.config_input_box.get()
         try:
             retriever = voucherBatcher.VoucherBatchRetriever(configName)
-        except:
+        except Exception as e:
             popupWindow("Config File Not Found.\nPlease Check File Name\nand try again")
+            raise e
 
         if retriever.selectMostRecentBatch() == -1:
             retriever.triggerBatch()
@@ -219,23 +223,26 @@ class convertMenu:
         self.convert_menu.config(menu=self.menu_bar)
 
     def mostRecent(self):
-        converter = FOLIO2JAGGAER.voucherDataConverter(configName)
-        if converter.retrieveMostRecentJSON() == -1:
-            popupWindow("No json vouchers for this config's batch group were found.")
+        try:
+            converter = FOLIO2JAGGAER.voucherDataConverter(configName)
+            converter.retrieveMostRecentJSON()
+            converter.ConvertFOLIOBatchVoucher()
+            converter.saveXML()
+        except Exception as e:
+            print(e)
+            popupWindow(e)
             return
-        converter.ConvertFOLIOBatchVoucher()
-        converter.saveXML()
         popupWindow("File Converted Successfully")
 
     def convertCustom(self):
         converter = FOLIO2JAGGAER.voucherDataConverter(configName, self.input_box.get())
         try:
-            print("test")
-        except FileNotFoundError:
-            popupWindow("The file \"" + self.input_box.get() + "\" was not found.")
+            converter.ConvertFOLIOBatchVoucher()
+            converter.saveXML()
+        except Exception as e:
+            print(e)
+            popupWindow(e)
             return
-        converter.ConvertFOLIOBatchVoucher()
-        converter.saveXML()
         popupWindow("File Converted Successfully")
 
     def batchReturn(self):
@@ -245,7 +252,7 @@ class convertMenu:
 
 if __name__ == "__main__":
     # TODO: allow log to be generated without swallowing the login prompt
-    logger("voucher_export_log")
+    logger = logger("voucher_export_log")
     print("Launching...")
     configMenu()
 
