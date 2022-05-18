@@ -87,11 +87,14 @@ class voucherDataConverter:
             invoice_line = xmlET.SubElement(xml_root, "BuyerInvoiceOcr")
             invoice_header = xmlET.SubElement(invoice_line, "BuyerInvoiceHeader")
 
+            # TODO: Make SupplierInvoiceNumber unique
             invoice_number = xmlET.SubElement(invoice_header, "SupplierInvoiceNumber")
             invoice_number.text = voucher["vendorInvoiceNo"]
 
             invoice_type = xmlET.SubElement(invoice_header, "InvoiceType")
             invoice_type.text = "Invoice"
+
+            # TODO: Get clarification on Invoice Date
 
             # TODO:Get username information from BuyWays
             username = xmlET.SubElement(invoice_header, "UserName")
@@ -160,10 +163,13 @@ class voucherDataConverter:
             #due_date.text = "TODO Due Date"
 
             # Grand Total Information (Under Invoice Header)
+
             grand_total = xmlET.SubElement(invoice_header, "GrandTotal")
             grand_total_money = xmlET.SubElement(grand_total, "Money")
             grand_total_money.attrib = {"currency": "USD"}
             grand_total_money.text = str(voucher["amount"])
+
+            # TODO: Get clarification on <Supplier> SupplierNumber </Supplier>
 
             # Sub Total Information (Under Invoice Header)
             #sub_total = xmlET.SubElement(invoice_header, "SubTotal")
@@ -225,6 +231,7 @@ class voucherDataConverter:
             #ocr_image_name.text = "TODO: Name"
 
             # Buyer Invoice Line Begins
+
             buyer_invoice_line = xmlET.SubElement(invoice_line, "BuyerInvoiceLine")
             buyer_invoice_line.attrib = {"lineNumber": "001"}
 
@@ -261,6 +268,7 @@ class voucherDataConverter:
             except Exception:
                 raise ValueError(f"Speedtype: \"{speedtype}\" does not exist in the Chartfield")
 
+            # TODO: Get information on Campus value
             # Split Field 1 (Campus) (Under Buyer Invoice Line)
             split_set_1 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
             split_set_1.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
@@ -301,6 +309,7 @@ class voucherDataConverter:
             split_4_custom_val = xmlET.SubElement(split_4_custom, "Value")
             split_4_custom_val.text = f'{account}-A'
 
+            # TODO: Get information on Program value
             # Split Field 5 (Program) (Under Buyer Invoice Line)
             split_set_5 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
             split_set_5.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
