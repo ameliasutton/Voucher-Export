@@ -11,7 +11,6 @@ class requestObject:
             self.url = url + '/'
         self.tenant = tenant
         self.token = token
-        # TODO: Fill this dict with more possible errors
         self.responseErrors = {
             400: "Bad Request, e.g. malformed request body or query parameter. Details of the error (e.g. name of the "
                  "parameter or line/character number with malformed data) provided in the response.",
@@ -24,6 +23,7 @@ class requestObject:
 
         }
 
+
 # makes post call to authn/login to request a fresh token
     def retrieveToken(self, userName, Password):
 
@@ -34,13 +34,13 @@ class requestObject:
         connection_url = self.url + "authn/login"
         login = requests.post(connection_url, headers=headers, data=json.dumps(payload), timeout=10)
         if login.status_code == 408:
-            sys.exit("Login Request Timed Out")
+            raise TimeoutError('Request timed out.')
         try:
             self.token = login.headers['x-okapi-token']
-
         except KeyError:
             print(login.text)
-            sys.exit("Login Failed")
+            raise KeyError('Login Failed.')
+        return 0
 
 # Sets token if provided
     def setToken(self, t):
@@ -50,14 +50,12 @@ class requestObject:
     def testToken(self):
         headers = {'Content-Type': 'application/json',
                    'x-okapi-tenant': self.tenant, 'x-okapi-token': self.token}
-        connection_url = self.url + "batch-groups"
+        connection_url = self.url + "invoice/invoices?query=limit=0"
         test = requests.get(connection_url, headers=headers)
         if test.status_code == 401:
-            print("Token Failed with status code: 401")
-            print("Please input updated username and password...")
-            self.retrieveToken(input("Username: "), input("Password: "))
+            return -1
         else:
-            return
+            return 0
 
 # repeats a get request and returns the combined results.
     def paging(self, modURL, inc, session, topLevel=None):

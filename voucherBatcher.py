@@ -2,7 +2,7 @@ import requests
 import json
 import folio_api_aneslin as api
 import datetime
-
+from invoiceDate import addInvoiceDates
 
 class VoucherBatchRetriever:
     def __init__(self, config):
@@ -12,7 +12,7 @@ class VoucherBatchRetriever:
             with open(config, "r") as c:
                 config = json.load(c)
         except FileNotFoundError:
-            raise FileNotFoundError
+            raise FileNotFoundError("Config File Not Found")
         self.batchStartDate = config["batchStartDate"]
         self.batchEndDate = config["batchEndDate"]
 
@@ -20,7 +20,8 @@ class VoucherBatchRetriever:
         print("Creating Requester...")
         self.requester = api.requestObject(config["url"], config["tenant"])
         self.requester.setToken(config["token"])
-        self.requester.testToken()
+        if self.requester.testToken() == -1:
+            raise Exception('Token rejected, new login credentials required')
         self.updateConfig()
         print("Requester Created")
         print("Creating Session...")
@@ -234,10 +235,11 @@ class VoucherBatchRetriever:
         vouchers = self.retrieveVoucher()
         if vouchers != {}:
             print("Saving Voucher Batch...")
-            with open("jsonBatchVouchers/" + self.batchGroup + "/" + self.batchEndDate[0:-5].replace(":", "-")
-                      .replace("T", "_") + ".json", "w") as out:
+            file_out = "jsonBatchVouchers/" + self.batchGroup + "/" + self.batchEndDate[0:-5].replace(":", "-").replace("T", "_") + ".json"
+            with open(file_out, "w") as out:
                 out.write(json.dumps(vouchers, indent=4))
             print("Voucher Batch Saved.")
+            addInvoiceDates(file_out, self.configFileName)
             return 0
         else:
             return -1
