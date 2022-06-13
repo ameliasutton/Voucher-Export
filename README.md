@@ -18,6 +18,8 @@ Simple program with a few functions:
 * os
 * glob
 * tkinter
+* pandas
+
 
 
 ## Instructions
@@ -43,6 +45,11 @@ Simple program with a few functions:
 * Select "Save Selected Batch (json)"
 * Select "convert Saved Batches to XML" and either input a file name, or select: "Convert Most Recently Created File"
 
+## Notes
+
+* JSON Files are saved to 'jsonBatchVouchers/[Batch Group Name]'
+* XML Files are saved to 'xmlBatchVouchers/[Batch Group Name]'
+* Voucher Identifier lists from created xml files are saved to 'voucherIdentifiers/[Batch Group Name]'
 
 ## Contributors
 
@@ -52,6 +59,9 @@ Simple program with a few functions:
 
 
 ## Version History
+* 0.5
+  * Filled XML Output Data.
+  * Added Invoice Date Data to the export
 * 0.2
 	* Implemented GUI
 	* Added Logging for better bug tracking.
@@ -60,8 +70,7 @@ Simple program with a few functions:
     * Initial Release
     
 ## Known Issues
-* XML converter fills output files with mostly placeholder data
+* 
 ## Planned Features
-* Improved UI - potentially using [Gooey](https://github.com/chriskiehl/Gooey)
-* Replace placeholder data in xml with actual data
+* Revamp of back-end to improve simplicity for maintenance
 
