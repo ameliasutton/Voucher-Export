@@ -71,6 +71,7 @@ class voucherDataConverter:
         with open(file_out_path, "w") as f:
             for item in self.voucherIdentifiers:
                 f.write(item+'\n')
+        return file_out_path
 
     # Takes in a json dict
     def ConvertFOLIOBatchVoucher(self):
@@ -351,6 +352,7 @@ class voucherDataConverter:
             print(content[22:])
             out.seek(0, 0)
             out.write(file_headers.rstrip('\r\n') + content[22:])
+        return file_out_path
 
 
 if __name__ == "__main__":
