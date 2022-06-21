@@ -61,7 +61,7 @@ class batchMenu:
 
     def selectNext(self):
         if self.retriever.selectNextBatch() == -1:
-            self.popupWindow("No newer batch found.")
+            popupWindow("No newer batch found.")
         self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
         self.voucher_status.config(text=self.retriever.getVoucherStatus())
 
@@ -102,7 +102,7 @@ class batchMenu:
 
     def convert(self):
         self.batch_menu.destroy()
-        convertMenu.convertMenu(self.configName)
+        convertMenu.convertMenu(self.configName, self.retriever)
 
     def reConfig(self):
         self.batch_menu.destroy()

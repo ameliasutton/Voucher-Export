@@ -8,7 +8,8 @@ from FOLIO2JAGGAER import voucherDataConverter
 
 class convertMenu:
 
-    def __init__(self, configName):
+    def __init__(self, configName, requester):
+        self.requester = requester
         self.configName = configName
         self.convert_menu = tk.Tk()
         self.convert_menu.wm_title("FOLIO Voucher Export - Conversion Menu")
@@ -123,4 +124,4 @@ class convertMenu:
 
     def batchReturn(self):
         self.convert_menu.destroy()
-        batchMenu.batchMenu()
+        batchMenu.batchMenu(self.requester, self.configName)
