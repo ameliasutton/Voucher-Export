@@ -1,6 +1,7 @@
 import requests
 import json
 import xml.etree.ElementTree as xmlET
+from xml.dom import minidom
 
 
 def postToBuyWays(config, xmlFile):
@@ -26,8 +27,11 @@ def postToBuyWays(config, xmlFile):
         response_status = (int(response.find('ResponseMessage').find('Status').find('StatusCode').text.strip()))
 
         if response_status >= 300:
+            xml_string = minidom.parseString(request.content)
+            xml_string = xml_string.toprettyxml(indent="   ")
+            print(xml_string)
             raise ValueError(f'Upload Status: {response_status}\n'
-                             f'Upload Response Text: {response_text}')
+                             f'Upload Response Text: {response_text}\n')
         elif response_status == 200:
             return 0
     except Exception as e:

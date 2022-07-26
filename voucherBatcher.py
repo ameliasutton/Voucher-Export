@@ -4,6 +4,7 @@ import folio_api_aneslin as api
 import datetime
 from invoiceDate import addInvoiceDates
 
+
 class VoucherBatchRetriever:
     def __init__(self, config):
         print("Initializing Retriever...")

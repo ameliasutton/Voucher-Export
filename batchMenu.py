@@ -39,7 +39,7 @@ class batchMenu:
         self.select_previous.grid(row=1, column=0, rowspan=2)
 
         self.select_previous_successful = tk.Button(master=self.batch_menu, text="Select Previous Successful",
-                                               command=self.previousSuccessful)
+                                                    command=self.previousSuccessful)
         self.select_previous_successful.grid(row=3, column=0, rowspan=2)
 
         self.create_new = tk.Button(master=self.batch_menu, text="Run New Batch Export", command=self.runNew)
