@@ -60,30 +60,35 @@ class batchMenu:
         self.batch_menu.config(menu=self.main_menu_bar)
 
     def selectNext(self):
+        print("Select Next Clicked")
         if self.retriever.selectNextBatch() == -1:
             popupWindow("No newer batch found.")
         self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
         self.voucher_status.config(text=self.retriever.getVoucherStatus())
 
     def selectPrevious(self):
+        print("Select Previous Clicked")
         if self.retriever.selectPreviousBatch() == -1:
             popupWindow("No older batch found.")
         self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
         self.voucher_status.config(text=self.retriever.getVoucherStatus())
 
     def nextSuccessful(self):
+        print("Next Successful Clicked")
         if self.retriever.selectNextSuccessful() == -1:
             popupWindow("No newer successful batch found.")
         self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
         self.voucher_status.config(text=self.retriever.getVoucherStatus())
 
     def previousSuccessful(self):
+        print("Previous Successful Clicked")
         if self.retriever.selectPreviousSuccessful() == -1:
             popupWindow("No older successful batch found.")
         self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
         self.voucher_status.config(text=self.retriever.getVoucherStatus())
 
     def runNew(self):
+        print("Run New Clicked")
         response = self.retriever.triggerBatch()
         self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
         self.voucher_status.config(text=self.retriever.getVoucherStatus())
@@ -94,6 +99,7 @@ class batchMenu:
             self.retriever.selectMostRecentBatch()
 
     def saveJson(self):
+        print("Save Json Clicked")
         if self.retriever.saveVoucherJSON() == 0:
             popupWindow("Voucher Saved as:\njsonBatchVouchers/" + self.retriever.batchGroup + "/"
                         + self.retriever.batchEndDate[0:-5].replace(":", "-").replace("T", "_") + ".json")
@@ -101,9 +107,11 @@ class batchMenu:
             popupWindow("Selected Batch was not successful, and does not have any associated vouchers.")
 
     def convert(self):
+        print("Convert Clicked")
         self.batch_menu.destroy()
         convertMenu.convertMenu(self.configName, self.retriever)
 
     def reConfig(self):
+        print("Reconfig Clicked")
         self.batch_menu.destroy()
         configMenu.configMenu()

@@ -71,6 +71,7 @@ class requestObject:
 
     def singleGet(self, modURL, session):
         url = self.url + modURL
+        print(url)
         returned = session.get(url, timeout=10)
         if returned.status_code in self.responseErrors.keys():
             sys.exit("Response Status Code: " + str(returned.status_code) + " " + str(self.responseErrors[returned.status_code]))
@@ -78,11 +79,13 @@ class requestObject:
 
     def post(self, modURL, session, payload):
         url = self.url + modURL
+        print(url)
         returned = session.post(url, data=json.dumps(payload))
         return self.checkResponse(returned)
 
     def put(self, modURL, session, payload):
         url = self.url + modURL
+        print(url)
         returned = session.put(url, data=json.dumps(payload))
         return self.checkResponse(returned)
 
@@ -97,7 +100,7 @@ class requestObject:
                       f"{str(self.responseErrors[returned.status_code])}\n\n")
             else:
                 print(f"Response Status code: {str(returned.status_code)}\n\n")
-            print(f"Response:\n{json.dumps(returned.json(), indent=4)}\n\n")
+            # print(f"Response:\n{json.dumps(returned.json(), indent=4)}\n\n")
             return {"error": True}
 
         print(f"Response:\n{json.dumps(returned.json(), indent=4)}\n\n")

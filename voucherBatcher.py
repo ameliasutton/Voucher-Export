@@ -127,7 +127,13 @@ class VoucherBatchRetriever:
         current_end = self.batchEndDate
         current_start = self.batchStartDate
         print("Attempting to select next Successful batch...")
-        self.selectNextBatch()
+        if self.selectNextBatch() == -1:
+            self.batchId = current_id
+            self.batchEndDate = current_end
+            self.batchStartDate = current_start
+            self.updateConfig()
+            print("No more recent batches were successful initial batch reselected.")
+            return -1
         while self.getVoucherId() == -1:
             if self.selectNextBatch() == -1:
                 self.batchId = current_id
@@ -175,8 +181,10 @@ class VoucherBatchRetriever:
             self.batchId = batch["batchVoucherExports"][0]["id"]
             self.batchEndDate = batch["batchVoucherExports"][0]["end"][0:23] + "*"
             self.batchStartDate = batch["batchVoucherExports"][0]["start"][0:23] + "*"
-            print("Previous Batch Selected\n"
-                  "Run Date: " + self.batchEndDate)
+            print(f"Previous Batch Selected\n"
+                  f"Start Date: {self.batchStartDate}\n"
+                  f"End Date: {self.batchEndDate}\n"
+                  f"Batch ID: {self.batchId}")
             self.updateConfig()
             return 0
 
@@ -186,7 +194,13 @@ class VoucherBatchRetriever:
         current_end = self.batchEndDate
         current_start = self.batchStartDate
         print("Attempting to select previous Successful batch...")
-        self.selectPreviousBatch()
+        if self.selectPreviousBatch() == -1:
+            self.batchId = current_id
+            self.batchEndDate = current_end
+            self.batchStartDate = current_start
+            self.updateConfig()
+            print("No older batches were successful initial batch reselected.")
+            return -1
         while self.getVoucherId() == -1:
             if self.selectPreviousBatch() == -1:
                 self.batchId = current_id
@@ -212,24 +226,27 @@ class VoucherBatchRetriever:
         print("Selecting Most Recent Batch...")
         self.selectMostRecentBatch()
         print("Starting batch...")
+        # NOTE: If server time is ever changed update this timedelta
         current_time = datetime.datetime.now()+datetime.timedelta(hours=5)
+        start_time = f"{self.batchEndDate[:-1]}+0000"
         end_time = f"{current_time.year:02}-{current_time.month:02}-{current_time.day:02}T{current_time.hour:02}:" \
                    f"{current_time.minute:02}:{current_time.second:02}.{str(current_time.microsecond)[0:3]}+0000"
 
         payload = {
             "batchGroupId": self.batchGroupId,
-            "start": self.batchEndDate[0:23]+"+0000",
-            "end": end_time,
-            "status": "Pending"
+            "start": start_time,
+            "end": end_time
         }
         url = "batch-voucher/batch-voucher-exports"
         print("\n\n" + url + "\n\n")
         print(json.dumps(payload, indent=4))
         response = self.requester.post(url, self.session, payload)
-        if response != {}:
-            self.selectNextBatch()
-            print("New batch created and selected")
-        return response
+        try:
+            if response["error"]:
+                return -1
+        finally:
+            self.selectMostRecentBatch()
+            return 0
 
     # Saves voucher to JSON using BatchEndDate as file name
     def saveVoucherJSON(self):

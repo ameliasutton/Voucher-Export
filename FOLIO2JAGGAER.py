@@ -128,7 +128,7 @@ class voucherDataConverter:
                 supplier_no = voucher["accountNo"]
                 supplier_address_code = voucher["accountingCode"]
 
-            # TODO Make sure this is correct
+            # TODO Should this be RemitTo or BillTo?
             remit_to = xmlET.SubElement(invoice_header, "BillTo")
             remit_to_address = xmlET.SubElement(remit_to, "Address")
             address_code = xmlET.SubElement(remit_to_address, "AddressCode")
@@ -230,154 +230,155 @@ class voucherDataConverter:
             # ocr_image_name = xmlET.SubElement(ocr_image, "OCRImageName")
             # ocr_image_name.text = "TODO: Name"
 
-            # Buyer Invoice Line Begins
+            for i, line in enumerate(voucher["batchedVoucherLines"]):
+                # Buyer Invoice Line Begins
 
-            buyer_invoice_line = xmlET.SubElement(invoice_line, "BuyerInvoiceLine")
-            buyer_invoice_line.attrib = {"lineNumber": "001"}
+                buyer_invoice_line = xmlET.SubElement(invoice_line, "BuyerInvoiceLine")
+                buyer_invoice_line.attrib = {"lineNumber": str(i+1).rjust(3, '0')}
 
-            # Item (Under Buyer Invoice Line)
-            # item = xmlET.SubElement(buyer_invoice_line, "Item")
-            # item_cat_no = xmlET.SubElement(item, "CatalogNumber")
-            # item_cat_no.text = "TODO CatNo"
-            # item_units = xmlET.SubElement(item, "UnitOfMeasure")
-            # item_units.text = "TODO Units"
+                # Item (Under Buyer Invoice Line)
+                # item = xmlET.SubElement(buyer_invoice_line, "Item")
+                # item_cat_no = xmlET.SubElement(item, "CatalogNumber")
+                # item_cat_no.text = "TODO CatNo"
+                # item_units = xmlET.SubElement(item, "UnitOfMeasure")
+                # item_units.text = "TODO Units"
 
-            # Quantity (Under Buyer Invoice Line)
-            quantity = xmlET.SubElement(buyer_invoice_line, "Quantity")
-            quantity.text = "1"
+                # Quantity (Under Buyer Invoice Line)
+                quantity = xmlET.SubElement(buyer_invoice_line, "Quantity")
+                quantity.text = "1"
 
-            # Unit Price (Under Buyer Invoice Line)
-            unit_price = xmlET.SubElement(buyer_invoice_line, "UnitPrice")
-            unit_price_money = xmlET.SubElement(unit_price, "Money")
-            unit_price_money.attrib = {"currency": "USD"}
-            unit_price_money.text = str(voucher["amount"])
+                # Unit Price (Under Buyer Invoice Line)
+                unit_price = xmlET.SubElement(buyer_invoice_line, "UnitPrice")
+                unit_price_money = xmlET.SubElement(unit_price, "Money")
+                unit_price_money.attrib = {"currency": "USD"}
+                unit_price_money.text = str(line["amount"])
 
-            # Splittable Field Set Group Start (Under Buyer Invoice Line)
+                # Splittable Field Set Group Start (Under Buyer Invoice Line)
 
-            split_set_group = xmlET.SubElement(buyer_invoice_line, "SplittableFieldSetGroup")
+                split_set_group = xmlET.SubElement(buyer_invoice_line, "SplittableFieldSetGroup")
 
-            # Location of the hyphen in the externalAccountNumber string
-            hyphen = voucher["batchedVoucherLines"][0]["externalAccountNumber"].find('-')
-            speedtype = voucher["batchedVoucherLines"][0]["externalAccountNumber"][:hyphen]
-            account = voucher["batchedVoucherLines"][0]["externalAccountNumber"][hyphen + 1:]
-            print(voucher["batchedVoucherLines"][0]["externalAccountNumber"])
-            print(f"Account: {account}")
-            print(f"SpeedType = {speedtype}")
-            try:
-                fund = self.chartfield.loc[speedtype][1]
-                dep_id = self.chartfield.loc[speedtype][0]
-            except Exception:
-                raise ValueError(f"Speedtype: \"{speedtype}\" does not exist in the Chartfield")
+                # Location of the hyphen in the externalAccountNumber string
+                hyphen = line["externalAccountNumber"].find('-')
+                speedtype = line["externalAccountNumber"][:hyphen]
+                account = line["externalAccountNumber"][hyphen + 1:]
+                print(line["externalAccountNumber"])
+                print(f"Account: {account}")
+                print(f"SpeedType = {speedtype}")
+                try:
+                    fund = self.chartfield.loc[speedtype][1]
+                    dep_id = self.chartfield.loc[speedtype][0]
+                except Exception:
+                    raise ValueError(f"Speedtype: \"{speedtype}\" does not exist in the Chartfield")
 
-            # Split Field 1 (Campus) (Under Buyer Invoice Line)
-            split_set_1 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
-            split_set_1.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
-            split_index_1 = xmlET.SubElement(split_set_1, "SplittableFieldIndex")
-            split_index_1.attrib = {"distributionvalue": "100", "splitindex": "0"}
-            split_1_custom = xmlET.SubElement(split_index_1, "CustomFieldValue")
-            split_1_custom.attrib = {"name": "Campus"}
-            split_1_custom_val = xmlET.SubElement(split_1_custom, "Value")
-            split_1_custom_val.text = "UMAMH"
-            print("Split Set 1, Campus: \'UMAMH\'")
+                # Split Field 1 (Campus) (Under Buyer Invoice Line)
+                split_set_1 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
+                split_set_1.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
+                split_index_1 = xmlET.SubElement(split_set_1, "SplittableFieldIndex")
+                split_index_1.attrib = {"distributionvalue": "100", "splitindex": "0"}
+                split_1_custom = xmlET.SubElement(split_index_1, "CustomFieldValue")
+                split_1_custom.attrib = {"name": "Campus"}
+                split_1_custom_val = xmlET.SubElement(split_1_custom, "Value")
+                split_1_custom_val.text = "UMAMH"
+                print("Split Set 1, Campus: \'UMAMH\'")
 
-            # Split Field 2 (Speedtype) (Under Buyer Invoice Line)
-            split_set_2 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
-            split_set_2.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
-            split_index_2 = xmlET.SubElement(split_set_2, "SplittableFieldIndex")
-            split_index_2.attrib = {"distributionvalue": "100", "splitindex": "0"}
-            split_2_custom = xmlET.SubElement(split_index_2, "CustomFieldValue")
-            split_2_custom.attrib = {"name": "Speedtype"}
-            split_2_custom_val = xmlET.SubElement(split_2_custom, "Value")
-            split_2_custom_val.text = f'{speedtype}-A'
-            print(f"Split Set 2, SpeedType: {speedtype}-A")
+                # Split Field 2 (Speedtype) (Under Buyer Invoice Line)
+                split_set_2 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
+                split_set_2.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
+                split_index_2 = xmlET.SubElement(split_set_2, "SplittableFieldIndex")
+                split_index_2.attrib = {"distributionvalue": "100", "splitindex": "0"}
+                split_2_custom = xmlET.SubElement(split_index_2, "CustomFieldValue")
+                split_2_custom.attrib = {"name": "Speedtype"}
+                split_2_custom_val = xmlET.SubElement(split_2_custom, "Value")
+                split_2_custom_val.text = f'{speedtype}-A'
+                print(f"Split Set 2, SpeedType: {speedtype}-A")
 
-            # Split Field 3 (Fund) (Under Buyer Invoice Line)
-            split_set_3 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
-            split_set_3.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
-            split_index_3 = xmlET.SubElement(split_set_3, "SplittableFieldIndex")
-            split_index_3.attrib = {"distributionvalue": "100", "splitindex": "0"}
-            split_3_custom = xmlET.SubElement(split_index_3, "CustomFieldValue")
-            split_3_custom.attrib = {"name": "Fund"}
-            split_3_custom_val = xmlET.SubElement(split_3_custom, "Value")
-            split_3_custom_val.text = f'{fund}-A'
-            print(f"Split Set 3, Fund: {fund}-A")
+                # Split Field 3 (Fund) (Under Buyer Invoice Line)
+                split_set_3 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
+                split_set_3.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
+                split_index_3 = xmlET.SubElement(split_set_3, "SplittableFieldIndex")
+                split_index_3.attrib = {"distributionvalue": "100", "splitindex": "0"}
+                split_3_custom = xmlET.SubElement(split_index_3, "CustomFieldValue")
+                split_3_custom.attrib = {"name": "Fund"}
+                split_3_custom_val = xmlET.SubElement(split_3_custom, "Value")
+                split_3_custom_val.text = f'{fund}-A'
+                print(f"Split Set 3, Fund: {fund}-A")
 
-            # Split Field 4 (Account) (Under Buyer Invoice Line)
-            split_set_4 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
-            split_set_4.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
-            split_index_4 = xmlET.SubElement(split_set_4, "SplittableFieldIndex")
-            split_index_4.attrib = {"distributionvalue": "100", "splitindex": "0"}
-            split_4_custom = xmlET.SubElement(split_index_4, "CustomFieldValue")
-            split_4_custom.attrib = {"name": "Account"}
-            split_4_custom_val = xmlET.SubElement(split_4_custom, "Value")
-            split_4_custom_val.text = f'{account}-A'
-            print(f"Split Set 4, Account: {account}-A")
+                # Split Field 4 (Account) (Under Buyer Invoice Line)
+                split_set_4 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
+                split_set_4.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
+                split_index_4 = xmlET.SubElement(split_set_4, "SplittableFieldIndex")
+                split_index_4.attrib = {"distributionvalue": "100", "splitindex": "0"}
+                split_4_custom = xmlET.SubElement(split_index_4, "CustomFieldValue")
+                split_4_custom.attrib = {"name": "Account"}
+                split_4_custom_val = xmlET.SubElement(split_4_custom, "Value")
+                split_4_custom_val.text = f'{account}-A'
+                print(f"Split Set 4, Account: {account}-A")
 
-            # Split Field 5 (Program) (Under Buyer Invoice Line)
-            split_set_5 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
-            split_set_5.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
-            split_index_5 = xmlET.SubElement(split_set_5, "SplittableFieldIndex")
-            split_index_5.attrib = {"distributionvalue": "100", "splitindex": "0"}
-            split_5_custom = xmlET.SubElement(split_index_5, "CustomFieldValue")
-            split_5_custom.attrib = {"name": "Program"}
-            split_5_custom_val = xmlET.SubElement(split_5_custom, "Value")
-            split_5_custom_val.text = "D13-A"
-            print("Split Set 5, Program: \'D13-A\'")
+                # Split Field 5 (Program) (Under Buyer Invoice Line)
+                split_set_5 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
+                split_set_5.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
+                split_index_5 = xmlET.SubElement(split_set_5, "SplittableFieldIndex")
+                split_index_5.attrib = {"distributionvalue": "100", "splitindex": "0"}
+                split_5_custom = xmlET.SubElement(split_index_5, "CustomFieldValue")
+                split_5_custom.attrib = {"name": "Program"}
+                split_5_custom_val = xmlET.SubElement(split_5_custom, "Value")
+                split_5_custom_val.text = "D13-A"
+                print("Split Set 5, Program: \'D13-A\'")
 
-            # Split Field 6 (Department) (Under Buyer Invoice Line)
-            split_set_6 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
-            split_set_6.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
-            split_index_6 = xmlET.SubElement(split_set_6, "SplittableFieldIndex")
-            split_index_6.attrib = {"distributionvalue": "100", "splitindex": "0"}
-            split_6_custom = xmlET.SubElement(split_index_6, "CustomFieldValue")
-            split_6_custom.attrib = {"name": "Department"}
-            split_6_custom_val = xmlET.SubElement(split_6_custom, "Value")
-            split_6_custom_val.text = f'{dep_id}-A'
-            print(f"Split Set 6, Department: {dep_id}-A")
+                # Split Field 6 (Department) (Under Buyer Invoice Line)
+                split_set_6 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
+                split_set_6.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
+                split_index_6 = xmlET.SubElement(split_set_6, "SplittableFieldIndex")
+                split_index_6.attrib = {"distributionvalue": "100", "splitindex": "0"}
+                split_6_custom = xmlET.SubElement(split_index_6, "CustomFieldValue")
+                split_6_custom.attrib = {"name": "Department"}
+                split_6_custom_val = xmlET.SubElement(split_6_custom, "Value")
+                split_6_custom_val.text = f'{dep_id}-A'
+                print(f"Split Set 6, Department: {dep_id}-A")
 
-            # Split Field 7 (SpeedType Class [classLink]) (Under Buyer Invoice Line)
-            split_set_7 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
-            split_set_7.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
-            split_index_7 = xmlET.SubElement(split_set_7, "SplittableFieldIndex")
-            split_index_7.attrib = {"distributionvalue": "100", "splitindex": "0"}
-            split_7_custom = xmlET.SubElement(split_index_7, "CustomFieldValue")
-            split_7_custom.attrib = {"name": "classLink"}
-            split_7_custom_val = xmlET.SubElement(split_7_custom, "Value")
-            split_7_custom_val.text = "none-A"
-            print("Split Set 7, SpeedType Class [classLink]: \'none-A\'")
+                # Split Field 7 (SpeedType Class [classLink]) (Under Buyer Invoice Line)
+                split_set_7 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
+                split_set_7.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
+                split_index_7 = xmlET.SubElement(split_set_7, "SplittableFieldIndex")
+                split_index_7.attrib = {"distributionvalue": "100", "splitindex": "0"}
+                split_7_custom = xmlET.SubElement(split_index_7, "CustomFieldValue")
+                split_7_custom.attrib = {"name": "classLink"}
+                split_7_custom_val = xmlET.SubElement(split_7_custom, "Value")
+                split_7_custom_val.text = "none-A"
+                print("Split Set 7, SpeedType Class [classLink]: \'none-A\'")
 
-            # Split Field 8 (Class) (Under Buyer Invoice Line)
-            split_set_8 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
-            split_set_8.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
-            split_index_8 = xmlET.SubElement(split_set_8, "SplittableFieldIndex")
-            split_index_8.attrib = {"distributionvalue": "100", "splitindex": "0"}
-            split_8_custom = xmlET.SubElement(split_index_8, "CustomFieldValue")
-            split_8_custom.attrib = {"name": "Class"}
-            split_8_custom_val = xmlET.SubElement(split_8_custom, "Value")
-            split_8_custom_val.text = "none"
-            print("Split Set 8, Class: \'none\'")
+                # Split Field 8 (Class) (Under Buyer Invoice Line)
+                split_set_8 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
+                split_set_8.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
+                split_index_8 = xmlET.SubElement(split_set_8, "SplittableFieldIndex")
+                split_index_8.attrib = {"distributionvalue": "100", "splitindex": "0"}
+                split_8_custom = xmlET.SubElement(split_index_8, "CustomFieldValue")
+                split_8_custom.attrib = {"name": "Class"}
+                split_8_custom_val = xmlET.SubElement(split_8_custom, "Value")
+                split_8_custom_val.text = "none"
+                print("Split Set 8, Class: \'none\'")
 
-            # Split Field 9 (Project) (Under Buyer Invoice Line)
-            split_set_9 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
-            split_set_9.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
-            split_index_9 = xmlET.SubElement(split_set_9, "SplittableFieldIndex")
-            split_index_9.attrib = {"distributionvalue": "100", "splitindex": "0"}
-            split_9_custom = xmlET.SubElement(split_index_9, "CustomFieldValue")
-            split_9_custom.attrib = {"name": "Project"}
-            split_9_custom_val = xmlET.SubElement(split_9_custom, "Value")
-            split_9_custom_val.text = "none"
-            print("Split Set 9, Project: \'none\'")
+                # Split Field 9 (Project) (Under Buyer Invoice Line)
+                split_set_9 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
+                split_set_9.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
+                split_index_9 = xmlET.SubElement(split_set_9, "SplittableFieldIndex")
+                split_index_9.attrib = {"distributionvalue": "100", "splitindex": "0"}
+                split_9_custom = xmlET.SubElement(split_index_9, "CustomFieldValue")
+                split_9_custom.attrib = {"name": "Project"}
+                split_9_custom_val = xmlET.SubElement(split_9_custom, "Value")
+                split_9_custom_val.text = "none"
+                print("Split Set 9, Project: \'none\'")
 
-            # Split Field 10 (Activity Id) (Under Buyer Invoice Line)
-            split_set_10 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
-            split_set_10.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
-            split_index_10 = xmlET.SubElement(split_set_10, "SplittableFieldIndex")
-            split_index_10.attrib = {"distributionvalue": "100", "splitindex": "0"}
-            split_10_custom = xmlET.SubElement(split_index_10, "CustomFieldValue")
-            split_10_custom.attrib = {"name": "Activity Id"}
-            split_10_custom_val = xmlET.SubElement(split_10_custom, "Value")
-            split_10_custom_val.text = "none"
-            print("Split Set 10, Activity Id: \'none\'")
+                # Split Field 10 (Activity Id) (Under Buyer Invoice Line)
+                split_set_10 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
+                split_set_10.attrib = {"distributiontype": "PercentOfPrice", "context": "Line"}
+                split_index_10 = xmlET.SubElement(split_set_10, "SplittableFieldIndex")
+                split_index_10.attrib = {"distributionvalue": "100", "splitindex": "0"}
+                split_10_custom = xmlET.SubElement(split_index_10, "CustomFieldValue")
+                split_10_custom.attrib = {"name": "Activity Id"}
+                split_10_custom_val = xmlET.SubElement(split_10_custom, "Value")
+                split_10_custom_val.text = "none"
+                print("Split Set 10, Activity Id: \'none\'")
 
 
         self.createdXML = xml_root

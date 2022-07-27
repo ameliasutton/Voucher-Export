@@ -6,7 +6,6 @@ from popupWindow import popupWindow
 from voucherBatcher import VoucherBatchRetriever
 
 
-
 class configMenu:
     def __init__(self):
         self.config_menu = tk.Tk()
@@ -36,38 +35,34 @@ class configMenu:
         self.config_menu_bar.add_cascade(label="File", menu=self.config_file)
         self.config_menu.config(menu=self.config_menu_bar)
 
-        self.config_menu.bind("<Return>", self.return_pressed)
-
         self.config_menu.mainloop()
-
-    def return_pressed(self, event):
-        self.customLaunch()
 
     def defaultLaunch(self):
         config_name = "config.json"
         try:
             retriever = VoucherBatchRetriever(config_name)
+            if retriever.selectMostRecentBatch() == -1:
+                if retriever.triggerBatch() == -1:
+                    popupWindow("No existing batches and batch creation failed.")
+            self.config_menu.destroy()
+            batchMenu.batchMenu(retriever, config_name)
         except Exception as e:
             if e.args[0] == 'Token rejected, new login credentials required':
                 loginMenu.loginMenu(config_name, e.args[0])
             else:
                 popupWindow(e)
-                raise(e)
-        if retriever.selectMostRecentBatch() == -1:
-            retriever.triggerBatch()
-        self.config_menu.destroy()
-        batchMenu.batchMenu(retriever, config_name)
+                raise e
 
-    def customLaunch(self, event=None):
+    def customLaunch(self):
         config_name = self.config_input_box.get()
         try:
             retriever = VoucherBatchRetriever(config_name)
+            if retriever.selectMostRecentBatch() == -1:
+                retriever.triggerBatch()
+            self.config_menu.destroy()
+            batchMenu.batchMenu(retriever, config_name)
         except Exception as e:
             if e.args[0] == 'Token rejected, new login credentials required':
                 loginMenu.loginMenu(config_name, e.args[0])
             else:
                 popupWindow(e)
-        if retriever.selectMostRecentBatch() == -1:
-            retriever.triggerBatch()
-        self.config_menu.destroy()
-        batchMenu.batchMenu(retriever, config_name)
