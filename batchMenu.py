@@ -8,6 +8,7 @@ from popupWindow import popupWindow
 class batchMenu:
 
     def __init__(self, retriever, configName):
+        print("Initializing Batch Menu...")
         self.configName = configName
         self.retriever = retriever
         self.batch_menu = tk.Tk()
@@ -58,60 +59,93 @@ class batchMenu:
         self.file_menu.add_command(label="Exit", command=sys.exit)
         self.main_menu_bar.add_cascade(label="File", menu=self.file_menu)
         self.batch_menu.config(menu=self.main_menu_bar)
+        print("Batch Menu Initialized!")
 
     def selectNext(self):
-        print("Select Next Clicked")
-        if self.retriever.selectNextBatch() == -1:
-            popupWindow("No newer batch found.")
-        self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
-        self.voucher_status.config(text=self.retriever.getVoucherStatus())
+        print("\nSelect Next Clicked")
+        try:
+            print("\nSelect Next Clicked")
+            if self.retriever.selectNextBatch() == -1:
+                popupWindow("No newer batch found.")
+            self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
+            self.voucher_status.config(text=self.retriever.getVoucherStatus())
+        except Exception as e:
+            print(f"| Warn | {e}")
+            popupWindow(e)
 
     def selectPrevious(self):
-        print("Select Previous Clicked")
-        if self.retriever.selectPreviousBatch() == -1:
-            popupWindow("No older batch found.")
-        self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
-        self.voucher_status.config(text=self.retriever.getVoucherStatus())
+        print("\nSelect Previous Clicked")
+        try:
+            if self.retriever.selectPreviousBatch() == -1:
+                popupWindow("No older batch found.")
+            self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
+            self.voucher_status.config(text=self.retriever.getVoucherStatus())
+        except Exception as e:
+            print(f"| warn | {e}")
+            popupWindow(e)
 
     def nextSuccessful(self):
-        print("Next Successful Clicked")
-        if self.retriever.selectNextSuccessful() == -1:
-            popupWindow("No newer successful batch found.")
-        self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
-        self.voucher_status.config(text=self.retriever.getVoucherStatus())
+        print("\nNext Successful Clicked")
+        try:
+            if self.retriever.selectNextSuccessful() == -1:
+                popupWindow("No newer successful batch found.")
+            self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
+            self.voucher_status.config(text=self.retriever.getVoucherStatus())
+        except Exception as e:
+            print(f"| Warn | {e}")
+            popupWindow(e)
 
     def previousSuccessful(self):
-        print("Previous Successful Clicked")
-        if self.retriever.selectPreviousSuccessful() == -1:
-            popupWindow("No older successful batch found.")
-        self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
-        self.voucher_status.config(text=self.retriever.getVoucherStatus())
-
+        print("\nPrevious Successful Clicked")
+        try:
+            if self.retriever.selectPreviousSuccessful() == -1:
+                popupWindow("No older successful batch found.")
+            self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
+            self.voucher_status.config(text=self.retriever.getVoucherStatus())
+        except Exception as e:
+            print(f"| Warn | {e}")
+            popupWindow(e)
     def runNew(self):
-        print("Run New Clicked")
-        response = self.retriever.triggerBatch()
-        self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
-        self.voucher_status.config(text=self.retriever.getVoucherStatus())
-        if response == {}:
-            popupWindow(f"Batch Creation Failed, see log for details.")
-        else:
-            popupWindow("New Batch Created.")
-            self.retriever.selectMostRecentBatch()
+        print("\nRun New Clicked")
+        try:
+            response = self.retriever.triggerBatch()
+            self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
+            self.voucher_status.config(text=self.retriever.getVoucherStatus())
+            if response == {}:
+                popupWindow(f"Batch Creation Failed, see log for details.")
+            else:
+                popupWindow("New Batch Created.")
+                self.retriever.selectMostRecentBatch()
+        except Exception as e:
+            print(f"| Warn | {e}")
+            popupWindow(e)
 
     def saveJson(self):
-        print("Save Json Clicked")
-        if self.retriever.saveVoucherJSON() == 0:
-            popupWindow("Voucher Saved as:\njsonBatchVouchers/" + self.retriever.batchGroup + "/"
-                        + self.retriever.batchEndDate[0:-5].replace(":", "-").replace("T", "_") + ".json")
-        else:
-            popupWindow("Selected Batch was not successful, and does not have any associated vouchers.")
+        print("\nSave Json Clicked")
+        try:
+            if self.retriever.saveVoucherJSON() == 0:
+                popupWindow("Voucher Saved as:\njsonBatchVouchers/" + self.retriever.batchGroup + "/"
+                            + self.retriever.batchEndDate[0:-5].replace(":", "-").replace("T", "_") + ".json")
+            else:
+                popupWindow("Selected Batch was not successful, and does not have any associated vouchers.")
+        except Exception as e:
+            print(f"| Warn | {e}")
+            popupWindow(e)
 
     def convert(self):
-        print("Convert Clicked")
-        self.batch_menu.destroy()
-        convertMenu.convertMenu(self.configName, self.retriever)
+        print("\nConvert Clicked")
+        try:
+            self.batch_menu.destroy()
+            convertMenu.convertMenu(self.configName, self.retriever)
+        except Exception as e:
+            print(f"| Warn | {e}")
+            popupWindow(e)
 
     def reConfig(self):
-        print("Reconfig Clicked")
-        self.batch_menu.destroy()
-        configMenu.configMenu()
+        print("\nReconfig Clicked")
+        try:
+            self.batch_menu.destroy()
+            configMenu.configMenu()
+        except Exception as e:
+            print(f"| Warn | {e}")
+            popupWindow(e)

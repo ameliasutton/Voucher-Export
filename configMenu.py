@@ -8,6 +8,7 @@ from voucherBatcher import VoucherBatchRetriever
 
 class configMenu:
     def __init__(self):
+        print("Initializing Config Menu...")
         self.config_menu = tk.Tk()
         self.config_menu.wm_title("FOLIO Voucher Export - Config Menu")
         self.config_menu.columnconfigure([0, 1], minsize=100)
@@ -35,26 +36,38 @@ class configMenu:
         self.config_menu_bar.add_cascade(label="File", menu=self.config_file)
         self.config_menu.config(menu=self.config_menu_bar)
 
+        print("Config Menu Initialized!")
         self.config_menu.mainloop()
 
     def defaultLaunch(self):
+        print("\nDefault Launch Clicked")
         config_name = "config.json"
+        print(f"Configured with config_name = {config_name}")
         try:
             retriever = VoucherBatchRetriever(config_name)
             if retriever.selectMostRecentBatch() == -1:
                 if retriever.triggerBatch() == -1:
+                    print("| ERROR | No existing batches found, and batch creation failed.")
                     popupWindow("No existing batches and batch creation failed.")
             self.config_menu.destroy()
             batchMenu.batchMenu(retriever, config_name)
         except Exception as e:
             if e.args[0] == 'Token rejected, new login credentials required':
+                print("| Warn | Token rejected, new login credentials required")
                 loginMenu.loginMenu(config_name, e.args[0])
             else:
+                print(f"| Warn | {e}")
                 popupWindow(e)
                 raise e
 
     def customLaunch(self):
+        print(f"\nCustom Launch Clicked")
         config_name = self.config_input_box.get()
+        if config_name == '':
+            print("| Warn | Config File name must not be blank on custom startup.")
+            popupWindow(" Config File name \n must not be blank \n on custom startup. ")
+            return -1
+        print(f"Configured with config_name = {config_name}")
         try:
             retriever = VoucherBatchRetriever(config_name)
             if retriever.selectMostRecentBatch() == -1:
@@ -63,6 +76,9 @@ class configMenu:
             batchMenu.batchMenu(retriever, config_name)
         except Exception as e:
             if e.args[0] == 'Token rejected, new login credentials required':
+                print("| Warn | Token rejected, new login credentials required")
                 loginMenu.loginMenu(config_name, e.args[0])
             else:
+                print(f"| Warn | {e}")
                 popupWindow(e)
+                raise e

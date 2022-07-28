@@ -174,6 +174,7 @@ class voucherDataConverter:
             # supplier_phone_number_number = xmlET.SubElement(supplier_phone_number, "Number")
             # supplier_phone_number_number.text = "TODO: Phone Number"
 
+            # Intentionally filled with irrelevant data as a placeholder
             ocr_images = xmlET.SubElement(invoice_header, "OCRImages")
             ocr_image = xmlET.SubElement(ocr_images, "OCRImage")
             ocr_image.attrib["id"] = "123"

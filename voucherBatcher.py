@@ -13,7 +13,7 @@ class VoucherBatchRetriever:
             with open(config, "r") as c:
                 config = json.load(c)
         except FileNotFoundError:
-            raise FileNotFoundError("Config File Not Found")
+            raise FileNotFoundError(f"Config File \"{config}\": Not Found")
         self.batchStartDate = config["batchStartDate"]
         self.batchEndDate = config["batchEndDate"]
 
@@ -24,7 +24,7 @@ class VoucherBatchRetriever:
         if self.requester.testToken() == -1:
             raise Exception('Token rejected, new login credentials required')
         self.updateConfig()
-        print("Requester Created")
+        print("Requester Created!")
         print("Creating Session...")
         # Creates the session
         self.batchGroup = config["batchGroup"]
@@ -35,13 +35,13 @@ class VoucherBatchRetriever:
         self.session = requests.Session()
         self.session.headers = headers
         self.session.params = {"limit": "1000"}
-        print("Session Created")
+        print("Session Created!")
         print("Getting Batch Group ID...")
         self.batchGroupId = self.getBatchGroupId()
-        print("Batch Group ID Retrieved")
+        print("Batch Group ID Retrieved!")
         print("Getting Batch ID...")
         self.batchId = self.getBatchId()
-        print("Batch ID Retrieved")
+        print("Batch ID Retrieved!")
         print("Getting Voucher ID...")
         self.voucherId = None
         self.getVoucherId()
@@ -89,7 +89,7 @@ class VoucherBatchRetriever:
         try:
             self.voucherId = batch["batchVoucherId"]
         except KeyError:
-            print("Selected Batch encountered an error: " + batch["message"])
+            print("| Warn | Selected Batch encountered an error: " + batch["message"])
             self.voucherId = None
             return -1
         return 0
@@ -101,7 +101,7 @@ class VoucherBatchRetriever:
         try:
             print(batch["batchVoucherId"])
         except KeyError:
-            print("Selected Batch encountered an error: " + batch["message"])
+            print("| Warn | Selected Batch encountered an error: " + batch["message"])
             return batch["message"]
         return "Successful"
 

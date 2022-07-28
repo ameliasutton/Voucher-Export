@@ -3,12 +3,13 @@ import tkinter as tk
 import batchMenu
 from popupWindow import popupWindow
 from postToBuyWays import postToBuyWays
-from FOLIO2JAGGAER import voucherDataConverter
+from voucherDataConverter import voucherDataConverter
 
 
 class convertMenu:
 
     def __init__(self, configName, requester):
+        print("Initializing Convert Menu...")
         self.requester = requester
         self.configName = configName
         self.convert_menu = tk.Tk()
@@ -56,12 +57,13 @@ class convertMenu:
         self.menu_file.add_command(label="Exit", command=sys.exit)
         self.menu_bar.add_cascade(label="File", menu=self.menu_file)
         self.convert_menu.config(menu=self.menu_bar)
+        print("Convert Menu Initialized!")
 
     def postXML(self, xml_file_name):
         try:
             postToBuyWays(self.configName, xml_file_name)
         except Exception as e:
-            print(e)
+            print(f"| Warn | {e}")
             popupWindow(e)
             return
         popupWindow('File Converted and Posted Successfully.')
@@ -74,7 +76,7 @@ class convertMenu:
             converter.saveXML()
             converter.saveVoucherIdentifiers()
         except Exception as e:
-            print(e)
+            print(f"| Warn | {e}")
             popupWindow(e)
             return
         popupWindow("File Converted Successfully.")
@@ -87,14 +89,14 @@ class convertMenu:
             xml_file_name = converter.saveXML()
             converter.saveVoucherIdentifiers()
         except Exception as e:
-            print(e)
+            print(f"| Warn | {e}")
             popupWindow(e)
             return
         self.postXML(xml_file_name)
 
     def convertCustom(self):
         if self.input_box.get() == '':
-            print('File Name must not be empty')
+            print('| Warn | File Name must not be empty')
             popupWindow('File Name Cannot be empty')
         try:
             converter = voucherDataConverter(self.configName, self.input_box.get())
@@ -102,14 +104,14 @@ class convertMenu:
             converter.saveXML()
             converter.saveVoucherIdentifiers()
         except Exception as e:
-            print(e)
+            print(f"| Warn | {e}")
             popupWindow(e)
             return
         popupWindow("File Converted Successfully.")
 
     def convertCustomPost(self):
         if self.input_box.get() == '':
-            print('File Name must not be empty')
+            print('| Warn | File Name must not be empty')
             popupWindow('File Name Cannot be empty')
         try:
             converter = voucherDataConverter(self.configName, self.input_box.get())
@@ -117,7 +119,7 @@ class convertMenu:
             converter.saveVoucherIdentifiers()
             xml_file_name = converter.saveXML()
         except Exception as e:
-            print(e)
+            print(f"| Warn | {e}")
             popupWindow(e)
             return
         self.postXML(xml_file_name)
