@@ -227,7 +227,7 @@ class VoucherBatchRetriever:
         self.selectMostRecentBatch()
         print("Starting batch...")
         # NOTE: If server time is ever changed update this timedelta
-        current_time = datetime.datetime.now()+datetime.timedelta(hours=5)
+        current_time = datetime.datetime.utcnow()
         start_time = f"{self.batchEndDate[:-1]}+0000"
         end_time = f"{current_time.year:02}-{current_time.month:02}-{current_time.day:02}T{current_time.hour:02}:" \
                    f"{current_time.minute:02}:{current_time.second:02}.{str(current_time.microsecond)[0:3]}+0000"
