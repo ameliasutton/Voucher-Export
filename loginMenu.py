@@ -18,7 +18,7 @@ class loginMenu:
                 tenant = config["tenant"]
                 token = config["token"]
         except ValueError:
-            print(f"Config file \"{config}\" not found")
+            print(f"| ERROR | Config file \"{config}\" not found")
             popupWindow(f"Config file \"{config}\" not found")
 
         # Create Requester
@@ -34,7 +34,7 @@ class loginMenu:
             self.session = requests.Session()
             self.session.headers = headers
         except Exception as e:
-            print(e)
+            print(f"| Warn | {e}")
             popupWindow(e)
 
         self.root = tk.Tk()
@@ -67,7 +67,7 @@ class loginMenu:
         try:
             self.requester.retrieveToken(username, password)
         except Exception as e:
-            print(e)
+            print(f"| Warn | {e}")
             popupWindow(e)
 
         with open(self.configFileName, 'r') as old_config:
