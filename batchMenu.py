@@ -1,4 +1,6 @@
 import sys
+import time
+
 import configMenu
 import convertMenu
 import tkinter as tk
@@ -105,17 +107,21 @@ class batchMenu:
         except Exception as e:
             print(f"| Warn | {e}")
             popupWindow(e)
+
     def runNew(self):
         print("\nRun New Clicked")
         try:
             response = self.retriever.triggerBatch()
+            time.sleep(2)
             self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
             self.voucher_status.config(text=self.retriever.getVoucherStatus())
-            if response == {}:
+            if response == -1:
                 popupWindow(f"Batch Creation Failed, see log for details.")
             else:
                 popupWindow("New Batch Created.")
                 self.retriever.selectMostRecentBatch()
+                self.voucher_current.config(text=self.retriever.batchEndDate[0:-5].replace("T", " at "))
+                self.voucher_status.config(text=self.retriever.getVoucherStatus())
         except Exception as e:
             print(f"| Warn | {e}")
             popupWindow(e)

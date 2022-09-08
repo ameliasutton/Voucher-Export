@@ -4,8 +4,8 @@ from datetime import datetime
 
 if __name__ == "__main__":
     current_time = datetime.now()
-    logger = logger(f"Logs/Voucher_Export_{current_time.year:02}-{current_time.month:02}-{current_time.day:02}_{current_time.hour:02}-"
-                    f"{current_time.minute:02}-{current_time.second:02}")
+    logger = logger(f"Logs/Voucher_Export_{current_time.year:02}-{current_time.month:02}-{current_time.day:02}_"
+                    f"{current_time.hour:02}-{current_time.minute:02}-{current_time.second:02}")
     print("Launching...")
     try:
         configMenu()

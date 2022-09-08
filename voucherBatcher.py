@@ -25,6 +25,7 @@ class VoucherBatchRetriever:
             raise Exception('Token rejected, new login credentials required')
         self.updateConfig()
         print("Requester Created!")
+
         print("Creating Session...")
         # Creates the session
         self.batchGroup = config["batchGroup"]
@@ -36,15 +37,20 @@ class VoucherBatchRetriever:
         self.session.headers = headers
         self.session.params = {"limit": "1000"}
         print("Session Created!")
+
         print("Getting Batch Group ID...")
         self.batchGroupId = self.getBatchGroupId()
         print("Batch Group ID Retrieved!")
+
         print("Getting Batch ID...")
         self.batchId = self.getBatchId()
         print("Batch ID Retrieved!")
+
         print("Getting Voucher ID...")
         self.voucherId = None
-        self.getVoucherId()
+        if self.getVoucherId() == -1:
+            print("No Selected Voucher Found, Triggering New Batch")
+            self.triggerBatch()
         print("Retriever Created!")
 
     # Updates config file with currently selected Start Date, End Date, and API Token
@@ -83,13 +89,12 @@ class VoucherBatchRetriever:
     # Returns the Voucher ID associated with the selected Batch if it exists
     # Returns None otherwise
     def getVoucherId(self):
-        batch = self.requester.singleGet(f"batch-voucher/batch-voucher-exports?query=(batchGroupId==\""
-                                         f"{self.batchGroupId}\" AND start==\"{self.batchStartDate}\" AND end==\""
-                                         f"{self.batchEndDate}\")", self.session)["batchVoucherExports"][0]
         try:
-            self.voucherId = batch["batchVoucherId"]
-        except KeyError:
-            print("| Warn | Selected Batch encountered an error: " + batch["message"])
+            batch = self.requester.singleGet(f"batch-voucher/batch-voucher-exports?query=(batchGroupId==\""
+                                             f"{self.batchGroupId}\" AND start==\"{self.batchStartDate}\" AND end==\""
+                                             f"{self.batchEndDate}\")", self.session)
+            self.voucherId = batch["batchVoucherExports"][0]["batchVoucherId"]
+        except:
             self.voucherId = None
             return -1
         return 0
