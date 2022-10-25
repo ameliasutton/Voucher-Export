@@ -43,14 +43,19 @@ class VoucherBatchRetriever:
         print("Batch Group ID Retrieved!")
 
         print("Getting Batch ID...")
-        self.batchId = self.getBatchId()
+        self.batchId = None
+        if self.getBatchId() == -1:
+            print("No Selected Batch Found, Triggering New Batch")
+            self.triggerBatch()
         print("Batch ID Retrieved!")
 
         print("Getting Voucher ID...")
         self.voucherId = None
-        if self.getVoucherId() == -1:
-            print("No Selected Voucher Found, Triggering New Batch")
-            self.triggerBatch()
+        if self.getVoucherId == 0:
+            print("Voucher ID Retrieved!")
+        else:
+            print("Selected batch contains no vouchers.")
+        
         print("Retriever Created!")
 
     # Updates config file with currently selected Start Date, End Date, and API Token
