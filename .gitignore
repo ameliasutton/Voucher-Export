@@ -1,6 +1,6 @@
 /config.json
 /config.json.bak
-/configUMass.json
+/config - prod.json
 /jsonBatchVouchers
 /xmlBatchVouchers
 /mark_paid_log.log
@@ -10,3 +10,9 @@
 /voucherIdentifiers
 /postResults
 /Logs
+/exe_build
+/VoucherExport.spec
+/__pycache__
+/install_dependancies.bat
+/update_voucher_export.bat
+/Voucher-Export.code-workspace
