@@ -69,6 +69,7 @@ class convertMenu:
         popupWindow('File Converted and Posted Successfully.')
 
     def mostRecent(self):
+        print("Convert Most Recent Selected...")
         try:
             converter = voucherDataConverter(self.configName)
             converter.retrieveMostRecentJSON()
@@ -82,6 +83,7 @@ class convertMenu:
         popupWindow("File Converted Successfully.")
 
     def mostRecentPost(self):
+        print("Convert Most Recent and Post Selected...")
         try:
             converter = voucherDataConverter(self.configName)
             converter.retrieveMostRecentJSON()
@@ -95,6 +97,7 @@ class convertMenu:
         self.postXML(xml_file_name)
 
     def convertCustom(self):
+        print("Convert Custom Selected...")
         if self.input_box.get() == '':
             print('| Warn | File Name must not be empty')
             popupWindow('File Name Cannot be empty')
@@ -110,6 +113,7 @@ class convertMenu:
         popupWindow("File Converted Successfully.")
 
     def convertCustomPost(self):
+        print("Convert Custom and Post Selected...")
         if self.input_box.get() == '':
             print('| Warn | File Name must not be empty')
             popupWindow('File Name Cannot be empty')

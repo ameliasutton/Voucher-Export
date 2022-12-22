@@ -5,6 +5,7 @@ from xml.dom import minidom
 
 
 def postToBuyWays(config, xmlFile):
+    print("Attempting Post to BuyWays...")
     try:
         with open(config, 'r') as config_file:
             conf = json.load(config_file)
@@ -25,14 +26,16 @@ def postToBuyWays(config, xmlFile):
                          .find("Status")
                          .find("StatusText").text.strip())
         response_status = (int(response.find('ResponseMessage').find('Status').find('StatusCode').text.strip()))
-
+        
+        xml_string = minidom.parseString(request.content)
+        xml_string = xml_string.toprettyxml(indent="   ")
+        print(xml_string)
+        
         if response_status >= 300:
-            xml_string = minidom.parseString(request.content)
-            xml_string = xml_string.toprettyxml(indent="   ")
-            print(xml_string)
             raise ValueError(f'Upload Status: {response_status}\n'
                              f'Upload Response Text: {response_text}\n')
         elif response_status == 200:
+            print("Posted to BuyWays successfully\n")
             return 0
     except Exception as e:
         raise e
