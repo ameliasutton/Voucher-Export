@@ -13,7 +13,7 @@ class convertMenu:
         self.requester = requester
         self.configName = configName
         self.convert_menu = tk.Tk()
-        self.convert_menu.wm_title("FOLIO Voucher Export - Conversion Menu")
+        self.convert_menu.wm_title("FOLIO Voucher Export - JSON to XML Conversion Menu")
         self.convert_menu.columnconfigure([0, 1, 2], minsize=100)
         self.convert_menu.rowconfigure([0, 1, 2, 3, 4, 5], minsize=5)
 
