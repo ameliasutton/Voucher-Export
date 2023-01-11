@@ -14,7 +14,7 @@ class batchMenu:
         self.configName = configName
         self.retriever = retriever
         self.batch_menu = tk.Tk()
-        self.batch_menu.wm_title("FOLIO Voucher Export - Batch Menu")
+        self.batch_menu.wm_title(f"FOLIO Voucher Export - Batch Menu - {retriever.requester.url[:-1]}")
         self.batch_menu.columnconfigure([0, 1, 2], minsize=200)
         self.batch_menu.rowconfigure([0, 1, 2, 3, 4, 5, 6, 7, 8], minsize=9)
 
