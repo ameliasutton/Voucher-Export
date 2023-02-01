@@ -73,9 +73,9 @@ class VoucherBatchRetriever:
     def getBatchGroupId(self):
         response = self.requester.singleGet(f"batch-groups?query=name=\"{self.batchGroup}\"", self.session)
         if response["totalRecords"] == 0:
-            exit("Batch group name did not match any in FOLIO")
+            raise RuntimeError("Batch group name did not match any in FOLIO")
         elif response["totalRecords"] > 1:
-            exit("Batch group name matched with more than one batch group in FOLIO")
+            raise RuntimeError("Batch group name matched with more than one batch group in FOLIO")
         print(response["batchGroups"][0]["id"])
         return response["batchGroups"][0]["id"]
 
