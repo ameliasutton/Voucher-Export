@@ -4,12 +4,13 @@ import os
 import glob
 from xml.dom import minidom
 import pandas
+import logging
 
 
 class voucherDataConverter:
 
     def __init__(self, config, jsonName=None, xmlName=None):
-        print("Initializing Voucher Data Converter")
+        logging.info("Initializing Voucher Data Converter")
         try:
             with open(config, "r") as readFile:
                 config = json.load(readFile)
@@ -31,7 +32,7 @@ class voucherDataConverter:
         else:
             self.retrieveMostRecentJSON()
         self.voucherIdentifiers = self.getVoucherIdentifiersList()
-        print(f"File Selected for Conversion: {self.JsonName}")
+        logging.info(f"File Selected for Conversion: {self.JsonName}")
 
         if xmlName:
             self.createdXML = xmlET.parse(xmlName)
@@ -42,7 +43,7 @@ class voucherDataConverter:
 
     # locates most recently created json
     def retrieveMostRecentJSON(self):
-        print('Retrieving rost recent JSON...')
+        logging.info('Retrieving rost recent JSON...')
         folder_path = os.getcwd() + "/jsonBatchVouchers/" + self.batchGroup
         file_type = '/*json'
         files = glob.glob(folder_path + file_type)
@@ -53,35 +54,35 @@ class voucherDataConverter:
         self.JsonName = max_file
         file_out = json.load(open(max_file, 'r'))
         self.selectedJson = file_out
-        print('Most recent JSON found.\n')
+        logging.info('Most recent JSON found.')
         return self.selectedJson
 
     # retrieves list of voucher numbers from the input json
     def getVoucherIdentifiersList(self):
-        print("Gathering voucher identifiers...")
+        logging.info("Gathering voucher identifiers...")
         if not self.selectedJson:
             raise FileNotFoundError("No JSON file selected")
         id_list = []
         for invoice in self.selectedJson["batchedVouchers"]:
             id_list.append(invoice["voucherNumber"])
-        print("Voucher identifiers gathered.\n")
+        logging.info("Voucher identifiers gathered.")
         return id_list
 
     # saves list of voucher numbers for later use
     def saveVoucherIdentifiers(self):
-        print('Saving voucher identifiers...')
+        logging.info('Saving voucher identifiers...')
         if not self.voucherIdentifiers:
             raise ValueError("List of Voucher Identifiers Not Created.")
         file_out_path = f'voucherIdentifiers\\{self.batchGroup}\\{self.JsonName[-24:-5]}.txt'
         with open(file_out_path, "w") as f:
             for item in self.voucherIdentifiers:
                 f.write(item+'\n')
-        print(f"Voucher identifiers saved to: {file_out_path}\n")
+        logging.info(f"Voucher identifiers saved to: {file_out_path}")
         return file_out_path
 
     # Takes in a json dict and generates an XML ElementTree
     def ConvertFOLIOBatchVoucher(self):
-        print('Creating XML Object...')
+        logging.info('Creating XML Object...')
         if not self.selectedJson:
             raise FileNotFoundError("No JSON file selected")
         if self.selectedJson["batchGroup"] != self.batchGroup:
@@ -133,7 +134,6 @@ class voucherDataConverter:
                 supplier_no = voucher["accountNo"]
                 supplier_address_code = voucher["accountingCode"]
 
-            # TODO Should this be RemitTo or BillTo?
             remit_to = xmlET.SubElement(invoice_header, "BillTo")
             remit_to_address = xmlET.SubElement(remit_to, "Address")
             address_code = xmlET.SubElement(remit_to_address, "AddressCode")
@@ -263,9 +263,6 @@ class voucherDataConverter:
                 hyphen = line["externalAccountNumber"].find('-')
                 speedtype = line["externalAccountNumber"][:hyphen]
                 account = line["externalAccountNumber"][hyphen + 1:]
-                print(line["externalAccountNumber"])
-                print(f"Account: {account}")
-                print(f"SpeedType = {speedtype}")
                 try:
                     fund = self.chartfield.loc[speedtype][1]
                     dep_id = self.chartfield.loc[speedtype][0]
@@ -286,7 +283,7 @@ class voucherDataConverter:
                 split_1_custom.attrib = {"name": "Campus"}
                 split_1_custom_val = xmlET.SubElement(split_1_custom, "Value")
                 split_1_custom_val.text = "UMAMH"
-                print("Split Set 1, Campus: \'UMAMH\'")
+                
 
                 # Split Field 2 (Speedtype) (Under Buyer Invoice Line)
                 #split_set_2 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
@@ -297,7 +294,7 @@ class voucherDataConverter:
                 split_2_custom.attrib = {"name": "Speedtype"}
                 split_2_custom_val = xmlET.SubElement(split_2_custom, "Value")
                 split_2_custom_val.text = f'{speedtype}-A'
-                print(f"Split Set 2, SpeedType: {speedtype}-A")
+                
 
                 # Split Field 3 (Fund) (Under Buyer Invoice Line)
                 #split_set_3 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
@@ -307,7 +304,7 @@ class voucherDataConverter:
                 split_3_custom.attrib = {"name": "Fund"}
                 split_3_custom_val = xmlET.SubElement(split_3_custom, "Value")
                 split_3_custom_val.text = f'{fund}-A'
-                print(f"Split Set 3, Fund: {fund}-A")
+                
 
                 # Split Field 4 (Account) (Under Buyer Invoice Line)
                 #split_set_4 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
@@ -318,7 +315,7 @@ class voucherDataConverter:
                 split_4_custom.attrib = {"name": "Account"}
                 split_4_custom_val = xmlET.SubElement(split_4_custom, "Value")
                 split_4_custom_val.text = f'{account}-A'
-                print(f"Split Set 4, Account: {account}-A")
+                
 
                 # Split Field 5 (Program) (Under Buyer Invoice Line)
                 #split_set_5 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
@@ -329,7 +326,7 @@ class voucherDataConverter:
                 split_5_custom.attrib = {"name": "Program"}
                 split_5_custom_val = xmlET.SubElement(split_5_custom, "Value")
                 split_5_custom_val.text = "D13-A"
-                print("Split Set 5, Program: \'D13-A\'")
+                
 
                 # Split Field 6 (Department) (Under Buyer Invoice Line)
                 #split_set_6 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
@@ -340,7 +337,7 @@ class voucherDataConverter:
                 split_6_custom.attrib = {"name": "Department"}
                 split_6_custom_val = xmlET.SubElement(split_6_custom, "Value")
                 split_6_custom_val.text = f'{dep_id}-A'
-                print(f"Split Set 6, Department: {dep_id}-A")
+                
 
                 # Split Field 7 (SpeedType Class [classLink]) (Under Buyer Invoice Line)
                 #split_set_7 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
@@ -351,7 +348,7 @@ class voucherDataConverter:
                 split_7_custom.attrib = {"name": "classLink"}
                 split_7_custom_val = xmlET.SubElement(split_7_custom, "Value")
                 split_7_custom_val.text = "none-A"
-                print("Split Set 7, SpeedType Class [classLink]: \'none-A\'")
+                
 
                 # Split Field 8 (Class) (Under Buyer Invoice Line)
                 #split_set_8 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
@@ -362,7 +359,7 @@ class voucherDataConverter:
                 split_8_custom.attrib = {"name": "Class"}
                 split_8_custom_val = xmlET.SubElement(split_8_custom, "Value")
                 split_8_custom_val.text = "none"
-                print("Split Set 8, Class: \'none\'")
+                
 
                 # Split Field 9 (Project) (Under Buyer Invoice Line)
                 #split_set_9 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
@@ -373,7 +370,7 @@ class voucherDataConverter:
                 split_9_custom.attrib = {"name": "Project"}
                 split_9_custom_val = xmlET.SubElement(split_9_custom, "Value")
                 split_9_custom_val.text = "none"
-                print("Split Set 9, Project: \'none\'")
+                
 
                 # Split Field 10 (Activity Id) (Under Buyer Invoice Line)
                 #split_set_10 = xmlET.SubElement(split_set_group, "SplittableFieldIndexSet")
@@ -384,51 +381,57 @@ class voucherDataConverter:
                 split_10_custom.attrib = {"name": "Activity Id"}
                 split_10_custom_val = xmlET.SubElement(split_10_custom, "Value")
                 split_10_custom_val.text = "none"
-                print("Split Set 10, Activity Id: \'none\'")
+                
+                logging.info(f"Vendor invoice number: {voucher['vendorInvoiceNo']} "
+                             f"Account: {account} "
+                             f"SpeedType = {speedtype} "
+                             f"Split Set 1, Campus: \'UMAMH\' "
+                             f"Split Set 2, SpeedType: {speedtype}-A "
+                             f"Split Set 3, Fund: {fund}-A "
+                             f"Split Set 4, Account: {account}-A "
+                             f"Split Set 5, Program: \'D13-A\' "
+                             f"Split Set 6, Department: {dep_id}-A "
+                             f"Split Set 7, SpeedType Class [classLink]: \'none-A\' "
+                             f"Split Set 8, Class: \'none\' "
+                             f"Split Set 9, Project: \'none\' "
+                             f"Split Set 10, Activity Id: \'none\' ")
 
 
         self.createdXML = xml_root
-        print("XML Object Created\n")
+        logging.info("XML Object Created")
         return self.createdXML
 
     # retrieves the XML Element Tree as a string
     def getXMLString(self, xml_root=None):
-        print("Retrieving XML string...")
+        logging.info("Retrieving XML string...")
         if not xml_root:
             if not self.createdXML:
-                print("No XML Created Yet")
+                logging.warning("No XML Created Yet")
                 return
             else:
                 xml_root = self.createdXML
         xml_string = xmlET.tostring(xml_root)
         xml_string = minidom.parseString(xml_string)
         xml_string = xml_string.toprettyxml(indent="   ")
-        print("XML string retrieved")
+        logging.info("XML string retrieved")
         return xml_string
 
     def saveXML(self, xml_string=None):
-        print("Saving XML to file...")
+        logging.info("Saving XML to file...")
         if not xml_string:
             if not self.XMLstring:
                 self.XMLstring = self.getXMLString()
             xml_string = self.XMLstring
 
         file_out_path = f"xmlBatchVouchers\\{self.batchGroup}\\{self.JsonName[-24:-5]}.xml"
-        with open(file_out_path, "w") as f:
+        with open(file_out_path, "w", encoding='utf-8') as f:
             f.write(xml_string)
 
-        with open(file_out_path, 'r+') as out:
+        with open(file_out_path, 'r+', encoding='utf-8') as out:
             file_headers = "<?xml version=\"1.0\"?>\n<!DOCTYPE BuyerInvoiceOcrMessage SYSTEM\n" \
                            "\"https://integrations.sciquest.com/app_docs/dtd/buyerinvoice/BuyerInvoiceOCR.dtd\">"
             content = out.read()
             out.seek(0, 0)
             out.write(file_headers.rstrip('\r\n') + content[22:])
-        print(f"XML saved to: {file_out_path}\n")
+        logging.info(f"XML saved to: {file_out_path}")
         return file_out_path
-
-
-if __name__ == "__main__":
-    converter = voucherDataConverter("config.json", "2021-11-22_16-44-12.json")
-    converter.ConvertFOLIOBatchVoucher()
-    print(converter.getXMLString())
-    converter.saveXML()

@@ -1,13 +1,12 @@
-import requests
 import json
 import folio_api_aneslin as api
 import datetime
 from invoiceDate import addInvoiceDates
-
+import logging
 
 class VoucherBatchRetriever:
-    def __init__(self, config):
-        print("Initializing Retriever...")
+    def __init__(self, config, requester):
+        logging.info("Initializing Retriever...")
         self.configFileName = config
         try:
             with open(config, "r") as c:
@@ -17,46 +16,32 @@ class VoucherBatchRetriever:
         self.batchStartDate = config["batchStartDate"]
         self.batchEndDate = config["batchEndDate"]
 
-        # Creates the requester object
-        print("Creating Requester...")
-        self.requester = api.requestObject(config["url"], config["tenant"])
-        self.requester.setToken(config["token"])
-        if self.requester.testToken() == -1:
-            raise Exception('Token rejected, new login credentials required')
+        self.requester = requester
         self.updateConfig()
-        print("Requester Created!")
-
-        print("Creating Session...")
-        # Creates the session
         self.batchGroup = config["batchGroup"]
-        headers = {'Content-Type': 'application/json',
-                   'x-okapi-tenant': config["tenant"],
-                   'x-okapi-token': self.requester.token,
-                   'Accept': 'application/json'}
-        self.session = requests.Session()
-        self.session.headers = headers
-        self.session.params = {"limit": "1000"}
-        print("Session Created!")
 
-        print("Getting Batch Group ID...")
-        self.batchGroupId = self.getBatchGroupId()
-        print("Batch Group ID Retrieved!")
+        logging.info("Getting Batch Group ID...")
+        try:
+            self.batchGroupId = self.getBatchGroupId()
+        except Exception as e:
+            raise e
+        logging.info("Batch Group ID Retrieved!")
 
-        print("Getting Batch ID...")
+        logging.info("Getting Batch ID...")
         self.batchId = None
         if self.getBatchId() == -1:
-            print("No Selected Batch Found, Triggering New Batch")
+            logging.warning("No Selected Batch Found, Triggering New Batch")
             self.triggerBatch()
-        print("Batch ID Retrieved!")
+        logging.info("Batch ID Retrieved!")
 
-        print("Getting Voucher ID...")
+        logging.info("Getting Voucher ID...")
         self.voucherId = None
         if self.getVoucherId == 0:
-            print("Voucher ID Retrieved!")
+            logging.info("Voucher ID Retrieved!")
         else:
-            print("Selected batch contains no vouchers.")
+            logging.info("Selected batch contains no vouchers.")
         
-        print("Retriever Created!")
+        logging.info("Retriever Created!")
 
     # Updates config file with currently selected Start Date, End Date, and API Token
     def updateConfig(self):
@@ -64,28 +49,27 @@ class VoucherBatchRetriever:
             config = json.load(readConf)
             config["batchEndDate"] = self.batchEndDate
             config["batchStartDate"] = self.batchStartDate
-            config["token"] = self.requester.token
         with open(self.configFileName, "w") as writeConf:
             writeConf.write(json.dumps(config, indent=4))
-            print("Config updated")
+            logging.info("Config updated")
 
     # Returns Batch Group ID matching Batch Group Name provided in config file
     def getBatchGroupId(self):
-        response = self.requester.singleGet(f"batch-groups?query=name=\"{self.batchGroup}\"", self.session)
+        response = self.requester.singleGet(f"batch-groups?query=name=\"{self.batchGroup}\"")
         if response["totalRecords"] == 0:
-            raise RuntimeError("Batch group name did not match any in FOLIO")
+            raise RuntimeError("Batch group name in config did not match any in FOLIO")
         elif response["totalRecords"] > 1:
-            raise RuntimeError("Batch group name matched with more than one batch group in FOLIO")
-        print(response["batchGroups"][0]["id"])
+            raise RuntimeError("Batch group name in config matched with more than one batch group in FOLIO")
+        logging.info(response["batchGroups"][0]["id"])
         return response["batchGroups"][0]["id"]
 
     # Returns the Batch ID associated with the selected Dates
     def getBatchId(self):
         batch = self.requester.singleGet(f"batch-voucher/batch-voucher-exports?query=(batchGroupId==\""
                                          f"{self.batchGroupId}\" AND start==\"{self.batchStartDate}\" AND end==\""
-                                         f"{self.batchEndDate}\")", self.session)
+                                         f"{self.batchEndDate}\")")
         if batch["totalRecords"] == 0:
-            print("Selecting Most Recent Batch Date...")
+            logging.info("Selecting Most Recent Batch Date...")
             self.selectMostRecentBatch()
             return
         batch = batch["batchVoucherExports"][0]["id"]
@@ -97,7 +81,7 @@ class VoucherBatchRetriever:
         try:
             batch = self.requester.singleGet(f"batch-voucher/batch-voucher-exports?query=(batchGroupId==\""
                                              f"{self.batchGroupId}\" AND start==\"{self.batchStartDate}\" AND end==\""
-                                             f"{self.batchEndDate}\")", self.session)
+                                             f"{self.batchEndDate}\")")
             self.voucherId = batch["batchVoucherExports"][0]["batchVoucherId"]
         except:
             self.voucherId = None
@@ -105,28 +89,26 @@ class VoucherBatchRetriever:
         return 0
 
     def getVoucherStatus(self):
-        batch = self.requester.singleGet(f"batch-voucher/batch-voucher-exports?query=(batchGroupId==\""
-                                         f"{self.batchGroupId}\" AND start==\"{self.batchStartDate}\" AND end==\""
-                                         f"{self.batchEndDate}\")", self.session)["batchVoucherExports"][0]
+        response = self.requester.singleGet(f"batch-voucher/batch-voucher-exports?query=batchGroupId==\"{self.batchGroupId}\" AND start==\"{self.batchStartDate}\" AND end==\"{self.batchEndDate}\"")
+        batch = response["batchVoucherExports"][0]
         try:
-            print(batch["batchVoucherId"])
+            logging.info(batch["batchVoucherId"])
         except KeyError:
-            print("| Warn | Selected Batch encountered an error: " + batch["message"])
+            logging.warning("Selected Batch encountered an error: " + batch["message"])
             return batch["message"]
         return "Successful"
 
     # Moves Start and End Dates to point towards the next Batch
     def selectNextBatch(self):
-        batch = self.requester.singleGet(f"batch-voucher/batch-voucher-exports?query=batchGroupId==\""
-                                         f"{self.batchGroupId}\" AND start==\"{self.batchEndDate}\"", self.session)
+        batch = self.requester.singleGet(f"batch-voucher/batch-voucher-exports?query=batchGroupId==\"{self.batchGroupId}\" AND start==\"{self.batchEndDate}\"")
         if batch["totalRecords"] == 0:
-            print("Most recent batch already selected")
+            logging.info("Most recent batch already selected")
             return -1
         else:
             self.batchId = batch["batchVoucherExports"][0]["id"]
             self.batchEndDate = batch["batchVoucherExports"][0]["end"][0:23] + "*"
             self.batchStartDate = batch["batchVoucherExports"][0]["start"][0:23] + "*"
-            print("Next Batch Selected\n"
+            logging.info("Next Batch Selected"
                   "Run Date: " + self.batchEndDate)
             self.updateConfig()
             return 0
@@ -136,13 +118,13 @@ class VoucherBatchRetriever:
         current_id = self.batchId
         current_end = self.batchEndDate
         current_start = self.batchStartDate
-        print("Attempting to select next Successful batch...")
+        logging.info("Attempting to select next Successful batch...")
         if self.selectNextBatch() == -1:
             self.batchId = current_id
             self.batchEndDate = current_end
             self.batchStartDate = current_start
             self.updateConfig()
-            print("No more recent batches were successful initial batch reselected.")
+            logging.info("No more recent batches were successful initial batch reselected.")
             return -1
         while self.getVoucherId() == -1:
             if self.selectNextBatch() == -1:
@@ -150,24 +132,23 @@ class VoucherBatchRetriever:
                 self.batchEndDate = current_end
                 self.batchStartDate = current_start
                 self.updateConfig()
-                print("No more recent batches were successful initial batch reselected.")
+                logging.info("No more recent batches were successful initial batch reselected.")
                 return -1
-        print("Next Successful batch selected!")
+        logging.info("Next Successful batch selected!")
         return 0
 
     # Moves Start and End Dates to point towards the most recently run Batch
     def selectMostRecentBatch(self):
         batch = self.requester.singleGet(f"batch-voucher/batch-voucher-exports?query=batchGroupId==\""
-                                         f"{self.batchGroupId}\" sortby end/sort.descending", self.session)
+                                         f"{self.batchGroupId}\" sortby end/sort.descending")
         if batch["totalRecords"] == 0:
-            print(f"No Batches Found With Batch Group: {self.batchGroup}")
+            logging.warn(f"No Batches Found With Batch Group: {self.batchGroup}")
             return -1
         batch = batch["batchVoucherExports"][0]
         self.batchId = batch["id"]
         self.batchEndDate = batch["end"][0:23] + "*"
         self.batchStartDate = batch["start"][0:23] + "*"
-        print("Most Recent Batch Selected\n"
-              "Run Date: " + self.batchEndDate)
+        logging.info(f"Most Recent Batch Selected (Run Date: {self.batchEndDate})")
         self.updateConfig()
         return 0
 
@@ -175,26 +156,23 @@ class VoucherBatchRetriever:
     def mostRecentSuccessful(self):
         self.selectMostRecentBatch()
         if self.selectPreviousSuccessful() == -1:
-            print("No Successful batches found")
+            logging.info("No Successful batches found")
             return -1
-        print("Most recent Successful batch selected")
+        logging.info("Most recent Successful batch selected")
         return 0
 
     # Moves Start and End Dates to point towards the previous Batch
     def selectPreviousBatch(self):
         batch = self.requester.singleGet(f"batch-voucher/batch-voucher-exports?query=batchGroupId==\""
-                                         f"{self.batchGroupId}\" AND end==\"{self.batchStartDate}\"", self.session)
+                                         f"{self.batchGroupId}\" AND end==\"{self.batchStartDate}\"")
         if batch["totalRecords"] == 0:
-            print("Oldest Batch already selected")
+            logging.info("Oldest Batch already selected")
             return -1
         else:
             self.batchId = batch["batchVoucherExports"][0]["id"]
             self.batchEndDate = batch["batchVoucherExports"][0]["end"][0:23] + "*"
             self.batchStartDate = batch["batchVoucherExports"][0]["start"][0:23] + "*"
-            print(f"Previous Batch Selected\n"
-                  f"Start Date: {self.batchStartDate}\n"
-                  f"End Date: {self.batchEndDate}\n"
-                  f"Batch ID: {self.batchId}")
+            logging.info(f"Previous Batch Selected: Start Date: {self.batchStartDate}, End Date: {self.batchEndDate}, Batch ID: {self.batchId}")
             self.updateConfig()
             return 0
 
@@ -203,13 +181,13 @@ class VoucherBatchRetriever:
         current_id = self.batchId
         current_end = self.batchEndDate
         current_start = self.batchStartDate
-        print("Attempting to select previous Successful batch...")
+        logging.info("Attempting to select previous Successful batch...")
         if self.selectPreviousBatch() == -1:
             self.batchId = current_id
             self.batchEndDate = current_end
             self.batchStartDate = current_start
             self.updateConfig()
-            print("No older batches were successful initial batch reselected.")
+            logging.info("No older batches were successful initial batch reselected.")
             return -1
         while self.getVoucherId() == -1:
             if self.selectPreviousBatch() == -1:
@@ -217,25 +195,25 @@ class VoucherBatchRetriever:
                 self.batchEndDate = current_end
                 self.batchStartDate = current_start
                 self.updateConfig()
-                print("No older batches were successful initial batch reselected.")
+                logging.info("No older batches were successful initial batch reselected.")
                 return -1
-        print("Previous Successful batch selected!")
+        logging.info("Previous Successful batch selected!")
         return 0
 
     # Returns a dict of the Batched Vouchers
     def retrieveVoucher(self):
         self.getVoucherId()
         if self.voucherId:
-            returned = self.requester.singleGet(f"batch-voucher/batch-vouchers/{self.voucherId}", self.session)
+            returned = self.requester.singleGet(f"batch-voucher/batch-vouchers/{self.voucherId}")
             return returned
         else:
             return {}
 
     # Starts a new voucher batching process in FOLIO
     def triggerBatch(self):
-        print("Selecting Most Recent Batch...")
+        logging.info("Selecting Most Recent Batch...")
         self.selectMostRecentBatch()
-        print("Starting batch...")
+        logging.info("Starting batch...")
         # NOTE: If server time is ever changed update this timedelta
         current_time = datetime.datetime.utcnow()
         start_time = f"{self.batchEndDate[:-1]}+0000"
@@ -248,9 +226,8 @@ class VoucherBatchRetriever:
             "end": end_time
         }
         url = "batch-voucher/batch-voucher-exports"
-        print("\n\n" + url + "\n\n")
-        print(json.dumps(payload, indent=4))
-        response = self.requester.post(url, self.session, payload)
+        logging.info(json.dumps(payload, indent=4))
+        response = self.requester.post(url, payload)
         try:
             if response["error"]:
                 return -1
@@ -262,18 +239,12 @@ class VoucherBatchRetriever:
     def saveVoucherJSON(self):
         vouchers = self.retrieveVoucher()
         if vouchers != {}:
-            print("Saving Voucher Batch...")
+            logging.info("Saving Voucher Batch...")
             file_out = "jsonBatchVouchers/" + self.batchGroup + "/" + self.batchEndDate[0:-5].replace(":", "-").replace("T", "_") + ".json"
-            with open(file_out, "w") as out:
+            with open(file_out, "w", encoding='utf-8') as out:
                 out.write(json.dumps(vouchers, indent=4))
-            print("Voucher Batch Saved.")
-            addInvoiceDates(file_out, self.configFileName)
+            logging.info("Voucher Batch Saved.")
+            addInvoiceDates(file_out, self.configFileName, self.requester)
             return 0
         else:
             return -1
-
-
-if __name__ == "__main__":
-    configName = "config.json"
-    retriever = VoucherBatchRetriever(configName)
-    retriever.mostRecentSuccessful()

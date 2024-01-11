@@ -14,6 +14,10 @@
 /VoucherExport.spec
 /__pycache__
 /install_dependancies.bat
-/update_voucher_export.bat
+/update_voucher_export_excecutable.bat
 /Voucher-Export.code-workspace
 /config - dryrun.json
+/config - snapshot.json
+/configMenu.py
+/VoucherExport.exe
+/logger.py

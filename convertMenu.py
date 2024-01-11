@@ -4,12 +4,12 @@ import batchMenu
 from popupWindow import popupWindow
 from postToBuyWays import postToBuyWays
 from voucherDataConverter import voucherDataConverter
-
+import logging
 
 class convertMenu:
 
     def __init__(self, configName, requester):
-        print("Initializing Convert Menu...")
+        logging.info("Initializing Convert Menu...")
         self.requester = requester
         self.configName = configName
         self.convert_menu = tk.Tk()
@@ -57,19 +57,19 @@ class convertMenu:
         self.menu_file.add_command(label="Exit", command=sys.exit)
         self.menu_bar.add_cascade(label="File", menu=self.menu_file)
         self.convert_menu.config(menu=self.menu_bar)
-        print("Convert Menu Initialized!")
+        logging.info("Convert Menu Initialized!")
 
     def postXML(self, xml_file_name):
         try:
-            postToBuyWays(self.configName, xml_file_name)
+            result = postToBuyWays(self.configName, xml_file_name)
         except Exception as e:
-            print(f"| Warn | {e}")
+            logging.exception(e)
             popupWindow(e)
             return
-        popupWindow('File Converted and Posted Successfully.')
+        popupWindow(result)
 
     def mostRecent(self):
-        print("Convert Most Recent Selected...")
+        logging.info("Convert Most Recent Selected...")
         try:
             converter = voucherDataConverter(self.configName)
             converter.retrieveMostRecentJSON()
@@ -77,13 +77,13 @@ class convertMenu:
             converter.saveXML()
             converter.saveVoucherIdentifiers()
         except Exception as e:
-            print(f"| Warn | {e}")
+            logging.exception(e)
             popupWindow(e)
             return
         popupWindow("File Converted Successfully.")
 
     def mostRecentPost(self):
-        print("Convert Most Recent and Post Selected...")
+        logging.info("Convert Most Recent and Post Selected...")
         try:
             converter = voucherDataConverter(self.configName)
             converter.retrieveMostRecentJSON()
@@ -91,15 +91,15 @@ class convertMenu:
             xml_file_name = converter.saveXML()
             converter.saveVoucherIdentifiers()
         except Exception as e:
-            print(f"| Warn | {e}")
+            logging.exception(e)
             popupWindow(e)
             return
         self.postXML(xml_file_name)
 
     def convertCustom(self):
-        print("Convert Custom Selected...")
+        logging.info("Convert Custom Selected...")
         if self.input_box.get() == '':
-            print('| Warn | File Name must not be empty')
+            logging.warning('File Name must not be empty')
             popupWindow('File Name Cannot be empty')
         try:
             converter = voucherDataConverter(self.configName, self.input_box.get())
@@ -107,15 +107,15 @@ class convertMenu:
             converter.saveXML()
             converter.saveVoucherIdentifiers()
         except Exception as e:
-            print(f"| Warn | {e}")
+            logging.exception(e)
             popupWindow(e)
             return
         popupWindow("File Converted Successfully.")
 
     def convertCustomPost(self):
-        print("Convert Custom and Post Selected...")
+        logging.info("Convert Custom and Post Selected...")
         if self.input_box.get() == '':
-            print('| Warn | File Name must not be empty')
+            logging.warning('File Name must not be empty')
             popupWindow('File Name Cannot be empty')
         try:
             converter = voucherDataConverter(self.configName, self.input_box.get())
@@ -123,7 +123,7 @@ class convertMenu:
             converter.saveVoucherIdentifiers()
             xml_file_name = converter.saveXML()
         except Exception as e:
-            print(f"| Warn | {e}")
+            logging.exception(e)
             popupWindow(e)
             return
         self.postXML(xml_file_name)

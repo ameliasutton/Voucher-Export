@@ -2,7 +2,9 @@ import json
 import tkinter as tk
 from popupWindow import popupWindow
 import folio_api_aneslin as api
-import requests
+import batchMenu
+from voucherBatcher import VoucherBatchRetriever
+import logging
 
 
 class loginMenu:
@@ -10,31 +12,22 @@ class loginMenu:
         if not prompt:
             prompt = 'Please Input API Login Credentials:'
         # Read Config File
-        self.configFileName = config
+        self.config_name = config
         try:
             with open(config, "r") as c:
                 config = json.load(c)
                 url = config["url"]
                 tenant = config["tenant"]
-                token = config["token"]
-        except ValueError:
-            print(f"| ERROR | Config file \"{config}\" not found")
-            popupWindow(f"Config file \"{config}\" not found")
+                defaultUsername = config["defaultUsername"]
+        except Exception as e:
+            raise(e)
+
 
         # Create Requester
         try:
             self.requester = api.requestObject(url, tenant)
-            self.requester.setToken(token)
-
-            # Create Session
-            headers = {'Content-Type': 'application/json',
-                       'x-okapi-tenant': config["tenant"],
-                       'x-okapi-token': self.requester.token,
-                       'Accept': 'application/json'}
-            self.session = requests.Session()
-            self.session.headers = headers
         except Exception as e:
-            print(f"| Warn | {e}")
+            logging.exception(e)
             popupWindow(e)
 
         self.root = tk.Tk()
@@ -48,6 +41,7 @@ class loginMenu:
         self.userPrompt.grid(row=1, column=0)
 
         self.userInput = tk.Entry(master=self.root)
+        self.userInput.insert(0, defaultUsername)
         self.userInput.grid(row=1, column=1)
 
         self.passPrompt = tk.Label(master=self.root, text='Password: ', font='TkDefaultFont 10 bold')
@@ -66,16 +60,17 @@ class loginMenu:
         password = self.passInput.get()
         try:
             self.requester.retrieveToken(username, password)
+            retriever = VoucherBatchRetriever(self.config_name, self.requester)
         except Exception as e:
-            print(f"| Warn | {e}")
+            logging.exception(e)
             popupWindow(e)
-
-        with open(self.configFileName, 'r') as old_config:
-            config = json.load(old_config)
-        config['token'] = self.requester.token
-        with open(self.configFileName, 'w') as new_config:
-            new_config.write(json.dumps(config, indent=4))
-
-        print('Login Successful. Token Updated in config')
+            return -1
+        if retriever.selectMostRecentBatch() == -1:
+            if retriever.triggerBatch() == -1:
+                logging.warning("No existing batches found, and batch creation failed.")
+                popupWindow("No existing batches and batch creation failed.")
+        else:
+            logging.info(retriever.getVoucherStatus())
+        logging.info('Login Successful. Token Updated in config')
         self.root.destroy()
-        popupWindow('Login Successful.\nToken Updated in config')
+        batchMenu.batchMenu(retriever, self.config_name)

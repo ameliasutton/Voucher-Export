@@ -31,21 +31,21 @@ Simple program with a few functions:
     "jaggaerIdentity": "some jaggaer identity",  
     "jaggaerSecret": "some jaggaer password",  
     "buyWaysURL": "BuyWays URL",
-    "token": "FOLIO token",
     "batchStartDate": "Date in the form: YYYY-MM-DDTHH:MM:SS.000*",  
     "batchEndDate": "Date in the form: YYYY-MM-DDTHH:MM:SS.000*",  
     "batchGroup": "Voucher Batch Group for export",
-    "chartfield": "Chartfield File"
+    "chartfield": "Chartfield File",
+    "defaultUsername": "Default username for login menu"
 >
 > }
-* Create folders **jsonBatchVouchers**, **xmlBatchVouchers**, **voucherIdentifiers**, and **postResults** with subfolders for
-  the names of each Batch Group you plan to export files from inside your working directory.
+* Create a folder named **Logs** along with folders **jsonBatchVouchers**, **xmlBatchVouchers**, **voucherIdentifiers**, and **postResults** with subfolders for
+  the names of each Batch Group you plan to export files from, inside your working directory.
   
 ## Usage Instructions:
 
 * Run main.py using the command line 
   
-* Using the menu, input a config file name or select the default option: "Default config.json" 
+* Enter login information and select "submit"
 * Using the selection buttons navigate to the voucher batch export that you would like to save. Alternatively select "Run New Batch Export" to create a new export
 * Select "Save Selected Batch (json)"
 * To convert files to XML and post the results to BuyWays select "convert Saved Batches to XML" then select one of the following:
@@ -56,7 +56,6 @@ Simple program with a few functions:
 
 ## Notes
 
-* The Program's log is saved to voucher_export_log.log this log only shows information for the most recent running of the program.
 * JSON Files are saved to 'jsonBatchVouchers/[Batch Group Name]'
 * XML Files are saved to 'xmlBatchVouchers/[Batch Group Name]'
 * Voucher Identifier files are saved to 'voucherIdentifiers/[Batch Group Name]'
@@ -69,6 +68,10 @@ Simple program with a few functions:
 
 
 ## Version History
+* 1.0
+  * Corrected several issues with XML encoding
+  * Vastly improved logging
+  * Improved BuyWays post result message
 * 0.5
   * Filled XML Output Data.
   * Added Invoice Date Data to the export
@@ -82,5 +85,5 @@ Simple program with a few functions:
 ## Known Issues
 
 ## Planned Features
-* Revamp of back-end to improve simplicity for maintenance
+* 
 
