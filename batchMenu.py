@@ -1,10 +1,9 @@
 import sys
 import time
-import convertMenu
 import tkinter as tk
-from popupWindow import popupWindow
 import logging
-
+import convertMenu
+from popupWindow import popupWindow
 
 class batchMenu:
 
