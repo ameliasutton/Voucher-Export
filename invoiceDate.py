@@ -1,3 +1,5 @@
+# Depricated - invoice date is now included in Voucher Exports by default
+
 import json
 from popupWindow import popupWindow
 import logging

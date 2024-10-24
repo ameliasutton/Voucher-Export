@@ -1,7 +1,6 @@
 import json
 import folio_api_aneslin as api
 import datetime
-from invoiceDate import addInvoiceDates
 import logging
 
 class VoucherBatchRetriever:
@@ -244,7 +243,6 @@ class VoucherBatchRetriever:
             with open(file_out, "w", encoding='utf-8') as out:
                 out.write(json.dumps(vouchers, indent=4))
             logging.info("Voucher Batch Saved.")
-            addInvoiceDates(file_out, self.configFileName, self.requester)
             return 0
         else:
             return -1
