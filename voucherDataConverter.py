@@ -264,8 +264,8 @@ class voucherDataConverter:
                 speedtype = line["externalAccountNumber"][:hyphen]
                 account = line["externalAccountNumber"][hyphen + 1:]
                 try:
-                    fund = self.chartfield.loc[speedtype][1]
-                    dep_id = self.chartfield.loc[speedtype][0]
+                    fund = self.chartfield.loc[speedtype]["Fund"]
+                    dep_id = self.chartfield.loc[speedtype]["depID"]
                 except Exception:
                     raise ValueError(f"Speedtype: \"{speedtype}\" does not exist in the Chartfield")
 
