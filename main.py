@@ -9,7 +9,7 @@ if __name__ == "__main__":
                     format='%(asctime)s | %(levelname)s | %(message)s', datefmt='%m/%d/%Y %H:%M:%S')
     logging.info("Beginning Log")
 
-    config_name = "config - dryrun.json"
+    config_name = "config.json"
 
     logging.info(f"Configured with config_name = {config_name}")
     try:
