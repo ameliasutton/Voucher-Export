@@ -100,7 +100,7 @@ class voucherDataConverter:
         message_id.text = self.selectedJson["id"]
 
         timestamp = xmlET.SubElement(header, "Timestamp")
-        timestamp.text = self.selectedJson["end"][0:-5]
+        timestamp.text = str(self.selectedJson["end"])[0:-5]
 
         authentication = xmlET.SubElement(header, "Authentication")
         identity = xmlET.SubElement(authentication, "Identity")
@@ -119,8 +119,10 @@ class voucherDataConverter:
 
             invoice_type = xmlET.SubElement(invoice_header, "InvoiceType")
             invoice_type.text = "Invoice"
-
-            if voucher["accountingCode"] == voucher["accountNo"]:
+            if "accountNo" not in voucher.keys():
+                supplier_no = voucher["accountingCode"]
+                supplier_address_code = ''
+            elif voucher["accountingCode"] == voucher["accountNo"]:
                 if voucher["accountingCode"].find("(") != -1:
                     supplier_no = voucher["accountingCode"][:voucher["accountingCode"].find("(")].strip()
                     supplier_address_code = voucher["accountingCode"][voucher["accountingCode"]
@@ -145,7 +147,7 @@ class voucherDataConverter:
 
             username = xmlET.SubElement(invoice_header, "UserName")
             user_id = xmlET.SubElement(username, "UserID")
-            user_id.text = "10153343"
+            user_id.text = "10285671"
 
             # Terms Information (Under Invoice Header)
             # terms = xmlET.SubElement(invoice_header, "Terms")
