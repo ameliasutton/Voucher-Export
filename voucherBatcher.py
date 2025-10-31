@@ -240,8 +240,8 @@ class VoucherBatchRetriever:
         if vouchers != {}:
             logging.info("Saving Voucher Batch...")
             file_out = "jsonBatchVouchers/" + self.batchGroup + "/" + self.batchEndDate[0:-5].replace(":", "-").replace("T", "_") + ".json"
-            with open(file_out, "w", encoding='utf-8') as out:
-                out.write(json.dumps(vouchers, indent=4))
+            with open(file_out, "w", encoding='UTF-8') as out:
+                out.write(json.dumps(vouchers, indent=4, ensure_ascii=False))
             logging.info("Voucher Batch Saved.")
             return 0
         else:

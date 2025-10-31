@@ -141,13 +141,13 @@ class voucherDataConverter:
             address_code = xmlET.SubElement(remit_to_address, "AddressCode")
             address_code.text = supplier_address_code
 
-            in_date = voucher["invoiceDate"][:10]
+            in_date = str(voucher["invoiceDate"])[:10]
             invoice_date = xmlET.SubElement(invoice_header, "InvoiceDate")
             invoice_date.text = in_date
 
             username = xmlET.SubElement(invoice_header, "UserName")
             user_id = xmlET.SubElement(username, "UserID")
-            user_id.text = "10285671"
+            user_id.text = "10298855"
 
             # Terms Information (Under Invoice Header)
             # terms = xmlET.SubElement(invoice_header, "Terms")
